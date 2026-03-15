@@ -1,34 +1,35 @@
 name: deploy
 
-# 代码提交到main分支时触发github action
 on:
   push:
     branches:
-      - main
+      - main  # 确保你的分支名是 main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-          with:
-              fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-        - name: Setup Hugo
-          uses: peaceiris/actions-hugo@v3
-          with:
-              hugo-version: "latest"
-              extended: true
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: 'latest'
+          extended: true
 
-        - name: Build Web
-          run: hugo -D
+      - name: Build
+        run: hugo --minify
 
-        - name: Deploy Web
-          uses: peaceiris/actions-gh-pages@v4
-          with:
-              PERSONAL_TOKEN: ${{ secrets.TOKEN }}
-              EXTERNAL_REPOSITORY:yuabailing666/yubailing666.github.io
-              PUBLISH_BRANCH: main
-              PUBLISH_DIR: ./public
-              commit_message: auto deploy
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          # 注意：这里需要你配置一个名为 GH_PAT 的 Secret，或者使用默认的 GITHUB_TOKEN
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 推送到你的网页仓库
+          external_repository: yubailing666/yubailing666.github.io
+          publish_branch: main
+          publish_dir: ./public
