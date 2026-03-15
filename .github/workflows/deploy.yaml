@@ -3,7 +3,7 @@ name: deploy
 on:
   push:
     branches:
-      - main  # 确保你的分支名是 main
+      - main
 
 jobs:
   deploy:
@@ -12,7 +12,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          # 把这里改成 false，不再去检查子模块，避开那个 exit code 128 错误
+          submodules: false
           fetch-depth: 0
 
       - name: Setup Hugo
@@ -27,9 +28,8 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
-          # 注意：这里需要你配置一个名为 GH_PAT 的 Secret，或者使用默认的 GITHUB_TOKEN
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # 推送到你的网页仓库
+          # 确保这两个参数正确指向你的网页仓库
           external_repository: yubailing666/yubailing666.github.io
           publish_branch: main
           publish_dir: ./public
