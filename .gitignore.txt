@@ -1,0 +1,11 @@
+# 忽略 Hugo 自动生成的成品文件夹
+public/
+resources/_gen/
+assets/jsconfig.json
+
+# 忽略本地预览产生的临时文件
+.hugo_build.lock
+
+# 忽略操作系统的系统文件
+.DS_Store
+Thumbs.db
