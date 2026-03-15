@@ -28,8 +28,8 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # 确保这两个参数正确指向你的网页仓库
+          # 把这里改成你刚刚设置的暗号名字
+          personal_token: ${{ secrets.TOKEN }}
           external_repository: yubailing666/yubailing666.github.io
           publish_branch: main
           publish_dir: ./public
