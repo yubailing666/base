@@ -44,16 +44,16 @@ categories: [大学化学]
 
 ### 3. 溶液形成中的能量变化
 
-$(\text{solute})_n \rightarrow n\;\text{solute}\quad \Delta H_{\text{solute}} > 0$（破坏溶质间作用力，吸热）
+\((\text{solute})_n \rightarrow n\;\text{solute}\quad \Delta H_{\text{solute}} > 0\)（破坏溶质间作用力，吸热）
 
-$(\text{solvent})_n \rightarrow n\;\text{solvent}\quad \Delta H_{\text{solvent}} > 0$（破坏溶剂间作用力，吸热）
+\((\text{solvent})_n \rightarrow n\;\text{solvent}\quad \Delta H_{\text{solvent}} > 0\)（破坏溶剂间作用力，吸热）
 
-$n\;\text{solute} + n\;\text{solvent} \rightarrow \text{solution}\quad \Delta H_{\text{mix}} < 0$（溶质–溶剂作用，放热）
+\(n\;\text{solute} + n\;\text{solvent} \rightarrow \text{solution}\quad \Delta H_{\text{mix}} < 0\)（溶质–溶剂作用，放热）
 
 $$\Delta H_{\text{soln}} = \Delta H_{\text{solute}} + \Delta H_{\text{solvent}} + \Delta H_{\text{mix}}$$
 
-- **Exothermic dissolution（放热溶解）**：$ΔH_{solv} < 0$（如 MgSO₄）
-- **Endothermic dissolution（吸热溶解）**：$ΔH_{solv} > 0$（如 NH₄NO₃ → 速冷冰袋）
+- **Exothermic dissolution（放热溶解）**：\(ΔH_{solv} < 0\)（如 MgSO₄）
+- **Endothermic dissolution（吸热溶解）**：\(ΔH_{solv} > 0\)（如 NH₄NO₃ → 速冷冰袋）
 
 📝 吸热也能自发 → **Entropy（熵增）驱动！**
 
@@ -96,16 +96,16 @@ $$\Delta H_{\text{soln}} = \Delta H_{\text{solute}} + \Delta H_{\text{solvent}} 
 
 **（只对气体显著）**
 
-> $S_g = k \cdot P_g$
+> \(S_g = k \cdot P_g\)
 
-- $S_g$ = 气体溶解度（mol/L）
-- $k$ = Henry's law constant
-- $P_g$ = 液面上该气体的分压
+- \(S_g\) = 气体溶解度（mol/L）
+- \(k\) = Henry's law constant
+- \(P_g\) = 液面上该气体的分压
 
 **气体溶解度 ∝ 分压**（成正比）
 
-📝 **例题**：CO₂ 在 4.0 atm 下，$k = 3.4 \times 10^{-2}$ mol/L·atm
-→ $S_{CO_2} = (3.4 \times 10^{-2})(4.0) =$ **0.14 M**
+📝 **例题**：CO₂ 在 4.0 atm 下，\(k = 3.4 \times 10^{-2}\) mol/L·atm
+→ \(S_{CO_2} = (3.4 \times 10^{-2})(4.0) =\) **0.14 M**
 M是摩尔每升
 #### 6.3 温度效应
 
@@ -123,13 +123,13 @@ M是摩尔每升
 | 名称                          | 公式                         | 注意                  |
 | --------------------------- | -------------------------- | ------------------- |
 | **Mass percentage（质量百分比）**  | (溶质质量/溶液质量)×100%           |                     |
-| **ppm**                     | (溶质质量/溶液质量)×$10^6$         | 百万分之一               |
-| **ppb**                     | (溶质质量/溶液质量)×$10^9$         | 十亿分之一               |
-| **Mole fraction $X$（摩尔分数）** | $n_A / (n_A + n_B)$        | 注意区分溶剂和溶质           |
-| **Molarity $M$（摩尔浓度）**      | moles of solute / 溶液体积(L)  | ❗ **随温度变化**（体积热胀冷缩） |
-| **Molality $m$（重量摩尔浓度）**    | moles of solute / 溶剂质量(kg) | ✅ **不随温度变化**        |
+| **ppm**                     | (溶质质量/溶液质量)×\(10^6\)         | 百万分之一               |
+| **ppb**                     | (溶质质量/溶液质量)×\(10^9\)         | 十亿分之一               |
+| **Mole fraction \(X\)（摩尔分数）** | \(n_A / (n_A + n_B)\)        | 注意区分溶剂和溶质           |
+| **Molarity \(M\)（摩尔浓度）**      | moles of solute / 溶液体积(L)  | ❗ **随温度变化**（体积热胀冷缩） |
+| **Molality \(m\)（重量摩尔浓度）**    | moles of solute / 溶剂质量(kg) | ✅ **不随温度变化**        |
 
-📝 **温度变化时记得用 Molality ($m$) ！**
+📝 **温度变化时记得用 Molality (\(m\)) ！**
 
 ---
 
@@ -141,20 +141,20 @@ M是摩尔每升
 
 | 性质                                   | 规律                                               |
 | ------------------------------------ | ------------------------------------------------ |
-| **Vapor-pressure lowering（蒸气压下降）**   | $P_{\text{solution}} < P^\circ_{\text{solvent}}$ |
-| **Boiling-point elevation（沸点升高）**    | $T_b > T^\circ_b$                                |
-| **Freezing-point depression（凝固点降低）** | $T_f < T^\circ_f$                                |
-| **Osmotic pressure（渗透压）**            | $\pi$                                            |
+| **Vapor-pressure lowering（蒸气压下降）**   | \(P_{\text{solution}} < P^\circ_{\text{solvent}}\) |
+| **Boiling-point elevation（沸点升高）**    | \(T_b > T^\circ_b\)                                |
+| **Freezing-point depression（凝固点降低）** | \(T_f < T^\circ_f\)                                |
+| **Osmotic pressure（渗透压）**            | \(\pi\)                                            |
 
 ---
 
 ### 9. 蒸气压下降 — Raoult's Law（拉乌尔定律）
 
-> $P_{\text{solution}} = X_{\text{solvent}} \cdot P^\circ_{\text{solvent}}$
+> \(P_{\text{solution}} = X_{\text{solvent}} \cdot P^\circ_{\text{solvent}}\)
 
-- $X$ = mole fraction（摩尔分数）
-- $P^\circ$ = 纯溶剂在该温度下的 normal vapor pressure
-- 对于 nonvolatile（非挥发性）溶质：$\Delta P = X_{\text{solute}} \cdot P^\circ_{\text{solvent}}$
+- \(X\) = mole fraction（摩尔分数）
+- \(P^\circ\) = 纯溶剂在该温度下的 normal vapor pressure
+- 对于 nonvolatile（非挥发性）溶质：\(\Delta P = X_{\text{solute}} \cdot P^\circ_{\text{solvent}}\)
 
 **Ideal solution（理想溶液）** 的条件：
 
@@ -163,7 +163,7 @@ M是摩尔每升
 1. **Obey Raoult's law at all concentrations**（任意浓度都服从）← **最重要**
 2. **Solute and solvent have similar molecular sizes**（分子大小相近）
 3. **Similar types of intermolecular attractions**（分子间作用力类型相似）
-4. **$\Delta H_{\text{mix}} = 0$**（混合无热效应）
+4. **\(\Delta H_{\text{mix}} = 0\)**（混合无热效应）
 
 ⚠️ **与稀溶液近似（dilute solution approximation）的区别**：
 
@@ -171,32 +171,32 @@ M是摩尔每升
 | :---------------------- | :-------------- | :------------ |
 | 浓度范围                    | **任意浓度**都成立     | 只**低浓度**下近似成立 |
 | Raoult's Law 服从         | 严格服从            | 近似服从          |
-| $\Delta H_{\text{mix}}$ | $= 0$           | $\approx 0$   |
+| \(\Delta H_{\text{mix}}\) | \(= 0\)           | \(\approx 0\)   |
 | 实际存在？                   | 理想化模型，实际**不存在** | 实际**稀溶液**近似适用 |
 
 ---
 
 ### 10. Boiling-Point Elevation & Freezing-Point Depression
 
-> $\Delta T_b = K_b \cdot m$
-> $\Delta T_f = K_f \cdot m$
+> \(\Delta T_b = K_b \cdot m\)
+> \(\Delta T_f = K_f \cdot m\)
 
 | 符号 | 含义 |
 |------|------|
-| $K_b$ | molal boiling-point elevation constant（溶剂性质） |
-| $K_f$ | molal freezing-point depression constant（溶剂性质） |
-| $m$ | molality（重量摩尔浓度） |
+| \(K_b\) | molal boiling-point elevation constant（溶剂性质） |
+| \(K_f\) | molal freezing-point depression constant（溶剂性质） |
+| \(m\) | molality（重量摩尔浓度） |
 
-$T_b = T^\circ_b + \Delta T_b$
-$T_f = T^\circ_f - \Delta T_f$
+\(T_b = T^\circ_b + \Delta T_b\)
+\(T_f = T^\circ_f - \Delta T_f\)
 
 📝 **求 molar mass（摩尔质量）**：
 
-> $M_B = K_f \cdot m_B / (\Delta T_f \cdot m_A)$
+> \(M_B = K_f \cdot m_B / (\Delta T_f \cdot m_A)\)
 
 **推导过程**：
 
-已知 $\Delta T_f = K_f \cdot m$ 且 $m$ = molality
+已知 \(\Delta T_f = K_f \cdot m\) 且 \(m\) = molality
 
 ```
 m = moles of solute / mass of solvent (kg)
@@ -210,21 +210,21 @@ m = moles of solute / mass of solvent (kg)
 M_B = K_f · m_B / (ΔT_f · m_A)  ✓
 ```
 
-⚠️ **注意单位**：$m_B$ 是溶质质量(g)，$m_A$ 是溶剂质量(kg)
+⚠️ **注意单位**：\(m_B\) 是溶质质量(g)，\(m_A\) 是溶剂质量(kg)
 
 📝 **Antifreeze（防冻剂）应用**：ethylene glycol（乙二醇），40% 水溶液冰点 −24℃
 
 ---
 
-### 11. 电解质的依数性 — van't Hoff Factor ($i$)
+### 11. 电解质的依数性 — van't Hoff Factor (\(i\))
 
-> $\Delta T = K \cdot m \cdot i$
+> \(\Delta T = K \cdot m \cdot i\)
 
-- **Nonelectrolytes（非电解质）**：$i = 1$
-- **完全电离**：NaCl → $i = 2$；CaCl₂ → $i = 3$
-- **实际 $i$ < 理论值**：离子会 **reassociate（重新关联）**
+- **Nonelectrolytes（非电解质）**：\(i = 1\)
+- **完全电离**：NaCl → \(i = 2\)；CaCl₂ → \(i = 3\)
+- **实际 \(i\) < 理论值**：离子会 **reassociate（重新关联）**
 
-⚠️ 浓度越高 → 重新关联越多 → $i$ 越小
+⚠️ 浓度越高 → 重新关联越多 → \(i\) 越小
 
 ---
 
@@ -232,14 +232,14 @@ M_B = K_f · m_B / (ΔT_f · m_A)  ✓
 
 **Osmosis（渗透）**：溶剂从**低溶质浓度侧** → **高溶质浓度侧**，通过 semipermeable membrane（半透膜）
 
-**Osmotic pressure ($\pi$，渗透压)**：阻止渗透所需的最小压力
+**Osmotic pressure (\(\pi\)，渗透压)**：阻止渗透所需的最小压力
 
-> $\pi = iMRT$（van't Hoff 方程）
+> \(\pi = iMRT\)（van't Hoff 方程）
 
-- $M$ = molarity（摩尔浓度）
-- $i$ = van't Hoff factor
-- $R$ = gas constant（8.314 J/mol·K）
-- $T$ = 温度 (K)
+- \(M\) = molarity（摩尔浓度）
+- \(i\) = van't Hoff factor
+- \(R\) = gas constant（8.314 J/mol·K）
+- \(T\) = 温度 (K)
 
 ---
 
@@ -250,7 +250,7 @@ M_B = K_f · m_B / (ΔT_f · m_A)  ✓
 - 气体分子撞容器壁 → 产生压强
 - 溶质粒子撞半透膜（想冲过去被稀释） → 产生渗透压
 
-浓度越高（$M$ 越大）、温度越高（$T$ 越大），粒子撞得越猛 → $\pi$ 越大。
+浓度越高（\(M\) 越大）、温度越高（\(T\) 越大），粒子撞得越猛 → \(\pi\) 越大。
 
 ---
 
@@ -260,26 +260,26 @@ M_B = K_f · m_B / (ΔT_f · m_A)  ✓
 
 | 理想气体 | 稀溶液渗透压 |
 |----------|-------------|
-| $pV = nRT$ | $\pi V = inRT$ |
-| $p = nRT/V$ | $\pi = inRT/V$ |
-| $p = (n/V)RT$ | $\pi = i \cdot (n/V)RT = iMRT$ ✓ |
+| \(pV = nRT\) | \(\pi V = inRT\) |
+| \(p = nRT/V\) | \(\pi = inRT/V\) |
+| \(p = (n/V)RT\) | \(\pi = i \cdot (n/V)RT = iMRT\) ✓ |
 
-这不是巧合。在**稀溶液**中，溶质分子间的相互作用可以忽略，行为像理想气体中的分子一样独立运动。唯一的区别是加上 $i$ 来修正电解质电离带来的粒子数增加。
+这不是巧合。在**稀溶液**中，溶质分子间的相互作用可以忽略，行为像理想气体中的分子一样独立运动。唯一的区别是加上 \(i\) 来修正电解质电离带来的粒子数增加。
 
 ---
 
 #### 📝 记忆方法
 
-- $\pi = iMRT$ → 和理想气体 $pV = nRT$ 长得一模一样，只是多了个 $i$
-- $R$ 用 8.314（SI 单位，压力用 Pa）
-- $\pi$ 是**阻止**渗透的压力，不是渗透推动力，方向别搞反
+- \(\pi = iMRT\) → 和理想气体 \(pV = nRT\) 长得一模一样，只是多了个 \(i\)
+- \(R\) 用 8.314（SI 单位，压力用 Pa）
+- \(\pi\) 是**阻止**渗透的压力，不是渗透推动力，方向别搞反
 
 #### 题型总结
 
-1. **求 $\pi$** → $\pi = iMRT$（给了 $M, T, i$ 直接代）
-2. **求 molar mass** → $\pi = (m_B/M_B)RT/V$ → $M_B = m_BRT/(\pi V)$
-3. **判断等渗/高渗/低渗** → 比较两边的 $\pi$ 大小
-4. **电解质别忘了 $\times i$**：NaCl ≈ 2，CaCl₂ ≈ 3
+1. **求 \(\pi\)** → \(\pi = iMRT\)（给了 \(M, T, i\) 直接代）
+2. **求 molar mass** → \(\pi = (m_B/M_B)RT/V\) → \(M_B = m_BRT/(\pi V)\)
+3. **判断等渗/高渗/低渗** → 比较两边的 \(\pi\) 大小
+4. **电解质别忘了 \(\times i\)**：NaCl ≈ 2，CaCl₂ ≈ 3
 
 | 类型 | 定义 | 对细胞的影响 |
 |------|------|-----------|
@@ -289,7 +289,7 @@ M_B = K_f · m_B / (ΔT_f · m_A)  ✓
 
 📝 **Normal saline（生理盐水）**：0.16 M NaCl ≈ 0.9%，与血液等渗
 
-**Reverse osmosis（反渗透）**：施加大于 $\pi$ 的压力在浓溶液侧 → 水反向流动 → **desalination（海水淡化）**
+**Reverse osmosis（反渗透）**：施加大于 \(\pi\) 的压力在浓溶液侧 → 水反向流动 → **desalination（海水淡化）**
 
 ---
 
@@ -315,7 +315,7 @@ M_B = K_f · m_B / (ΔT_f · m_A)  ✓
 1. **词源法**：philo+sophy = 爱+智慧 → 哲学，所以 philic = 爱；phobia = 恐惧症，所以 phobic = 怕
 2. **字母法**：-philic 结尾 **c** 像**笑脸**😊 → 喜欢水；-phobic 结尾 **b** 像**苦脸**☹️ → 讨厌水
 
-**Emulsifier（乳化剂）**：一端亲水、一端疏水 → 乳化油脂（如肥皂 $C_{17}H_{35}COONa$）
+**Emulsifier（乳化剂）**：一端亲水、一端疏水 → 乳化油脂（如肥皂 \(C_{17}H_{35}COONa\)）
 
 **怎么判断适不适合做乳化剂？**
 
@@ -335,9 +335,9 @@ M_B = K_f · m_B / (ΔT_f · m_A)  ✓
 2. **找亲水端**：有没有 **polar group**（—OH、—COOH、—NH₂）或 **ionic group**（—COO⁻、—SO₃⁻）？
 3. **两端都得有**：光有疏水端（纯油）不行，光有亲水端（纯水）也不行
 
-📝 **肥皂 $C_{17}H_{35}COONa$ 的例子**：
-- 疏水：$C_{17}H_{35}-$ 长链（爱油）
-- 亲水：$-COO^- Na^+$（羧酸钠，离子型，爱水）
+📝 **肥皂 \(C_{17}H_{35}COONa\) 的例子**：
+- 疏水：\(C_{17}H_{35}-\) 长链（爱油）
+- 亲水：\(-COO^- Na^+\)（羧酸钠，离子型，爱水）
 - → 既能抓住油污，又能被水冲走
 
 **Coagulation（聚沉）** 方法：
@@ -351,12 +351,12 @@ M_B = K_f · m_B / (ΔT_f · m_A)  ✓
 
 | 公式 | 用途 |
 |------|------|
-| $S_g = k \cdot P_g$ | Henry's Law —— 气体溶解度 |
-| $P_{\text{solution}} = X_{\text{solvent}} \cdot P^\circ_{\text{solvent}}$ | Raoult's Law —— 蒸气压 |
-| $\Delta T_b = K_b \cdot m \cdot i$ | Boiling-point elevation |
-| $\Delta T_f = K_f \cdot m \cdot i$ | Freezing-point depression |
-| $\pi = iMRT$ | Osmotic pressure |
-| $M_B = K_f \cdot m_B / (\Delta T_f \cdot m_A)$ | 求 molar mass |
+| \(S_g = k \cdot P_g\) | Henry's Law —— 气体溶解度 |
+| \(P_{\text{solution}} = X_{\text{solvent}} \cdot P^\circ_{\text{solvent}}\) | Raoult's Law —— 蒸气压 |
+| \(\Delta T_b = K_b \cdot m \cdot i\) | Boiling-point elevation |
+| \(\Delta T_f = K_f \cdot m \cdot i\) | Freezing-point depression |
+| \(\pi = iMRT\) | Osmotic pressure |
+| \(M_B = K_f \cdot m_B / (\Delta T_f \cdot m_A)\) | 求 molar mass |
 
 ---
 
@@ -377,16 +377,16 @@ M_B = K_f · m_B / (ΔT_f · m_A)  ✓
 5. **蒸气压与 solvent 的 mole fraction 成正比**
    → **Raoult's Law**
 
-6. **Molality ($m$) =** moles of solute / 溶剂质量 (kg)
+6. **Molality (\(m\)) =** moles of solute / 溶剂质量 (kg)
 
 7. **气体溶解度随温度升高 → decreases（降低）**
 
-8. **2.00 m 蔗糖水溶液 freezing point？**（$K_f = 1.86$℃/m）
-   $\Delta T_f = 1.86 \times 2.00 = 3.72$℃ → **−3.72℃**
+8. **2.00 m 蔗糖水溶液 freezing point？**（\(K_f = 1.86\)℃/m）
+   \(\Delta T_f = 1.86 \times 2.00 = 3.72\)℃ → **−3.72℃**
 
 9. **哪个 0.100 m 溶液 freezing point 最低？**
-   NaCl($i \approx 2$) / CaCl₂($i \approx 3$) / KI($i \approx 2$) / LiNO₃($i \approx 2$)
-   → **CaCl₂**（$i$ 最大 → 粒子数最多）
+   NaCl(\(i \approx 2\)) / CaCl₂(\(i \approx 3\)) / KI(\(i \approx 2\)) / LiNO₃(\(i \approx 2\))
+   → **CaCl₂**（\(i\) 最大 → 粒子数最多）
 
 10. **Isotonic solutions 具有相同的 _____**
     → **osmotic pressure（渗透压）**
