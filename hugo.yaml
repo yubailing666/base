@@ -132,6 +132,8 @@ markup:
                     inline:
                         - - \(
                           - \)
+                        - - $
+                          - $
         renderer:
             unsafe: true
     tableOfContents:

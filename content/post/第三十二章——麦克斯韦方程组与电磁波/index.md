@@ -62,7 +62,7 @@ $$\oint \mathbf{B} \cdot d\mathbf{l} = \mu_0 (I_{\text{enc}} + I_d)$$
 
 #### 考试技巧：用好光速 c 快速计算
 
-公式中经常同时出现 \(\mu_0\) 和 \(\varepsilon_0\)，记住它们和光速的关系可以省很多事：
+公式中经常同时出现 $\mu_0$ 和 $\varepsilon_0$，记住它们和光速的关系可以省很多事：
 
 $$c = \frac{1}{\sqrt{\mu_0 \varepsilon_0}},\quad \mu_0 \varepsilon_0 = \frac{1}{c^2}$$
 
@@ -71,15 +71,15 @@ $$c = \frac{1}{\sqrt{\mu_0 \varepsilon_0}},\quad \mu_0 \varepsilon_0 = \frac{1}{
 - 强度公式：$$I = \frac{E_0^2}{2\mu_0 c} = \frac{c\varepsilon_0}{2}E_0^2$$
 
 **考场实操**：
-- 知道 \(I\) 求 \(E_0\)：\(E_0 = \sqrt{2\mu_0 c I}\)，直接敲计算器
-- 代入 \(\mu_0 = 4\pi \times 10^{-7},\; c = 3\times 10^8\) → \(\mu_0 c = 4\pi \times 10^{-7} \times 3\times 10^8 = 120\pi \approx 377\)（这就是真空阻抗！）
-- 所以 \(I = E_0^2 / (2 \times 377) = E_0^2/754\)，反过来 \(E_0 = \sqrt{754I}\)
+- 知道 $I$ 求 $E_0$：$E_0 = \sqrt{2\mu_0 c I}$，直接敲计算器
+- 代入 $\mu_0 = 4\pi \times 10^{-7},\; c = 3\times 10^8$ → $\mu_0 c = 4\pi \times 10^{-7} \times 3\times 10^8 = 120\pi \approx 377$（这就是真空阻抗！）
+- 所以 $I = E_0^2 / (2 \times 377) = E_0^2/754$，反过来 $E_0 = \sqrt{754I}$
 
-**记这个数**：\(\mu_0 c = 120\pi \approx 377\; \Omega\)（真空阻抗），考试直接用这个算强度，比拆开算快很多。
+**记这个数**：$\mu_0 c = 120\pi \approx 377\; \Omega$（真空阻抗），考试直接用这个算强度，比拆开算快很多。
 
 ### 3. 电磁波波动方程
 
-真空中 \(\rho = 0, \mathbf{J} = 0\)：
+真空中 $\rho = 0, \mathbf{J} = 0$：
 
 $$\nabla^2 \mathbf{E} = \mu_0\varepsilon_0 \frac{\partial^2 \mathbf{E}}{\partial t^2}$$
 
@@ -99,7 +99,7 @@ $$\mathbf{E} = E_0 \cos(kx - \omega t) \hat{\mathbf{y}},\quad \mathbf{B} = B_0 \
 | **横波** | E ⊥ B ⊥ 传播方向 |
 | **E ⊥ B** | 互相垂直 |
 | **同相** | E 和 B 同时达峰 |
-| **速度恒定** | \(c = 3\times 10^8\) m/s |
+| **速度恒定** | $c = 3\times 10^8$ m/s |
 | **E = cB** | 电场与磁场振幅比 |
 
 ---
@@ -126,11 +126,11 @@ $$\mathbf{E} = E_0 \cos(kx - \omega t) \hat{\mathbf{y}},\quad \mathbf{B} = B_0 \
 
 | 公式 | 用途 |
 |:----|:-----|
-| \(c = 1/\sqrt{\mu_0\varepsilon_0}\) | 光速 |
-| \(E/B = c\) | EM波场关系 |
-| \(I = E_0^2/(2\mu_0 c)\) | 强度 |
-| \(P_{\text{rad}} = I/c\) | 辐射压力（吸收）|
-| \(\mathbf{S} = (1/\mu_0)\mathbf{E}\times\mathbf{B}\) | 坡印廷矢量 |
+| $c = 1/\sqrt{\mu_0\varepsilon_0}$ | 光速 |
+| $E/B = c$ | EM波场关系 |
+| $I = E_0^2/(2\mu_0 c)$ | 强度 |
+| $P_{\text{rad}} = I/c$ | 辐射压力（吸收）|
+| $\mathbf{S} = (1/\mu_0)\mathbf{E}\times\mathbf{B}$ | 坡印廷矢量 |
 
 
 ---
