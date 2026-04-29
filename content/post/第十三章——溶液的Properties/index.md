@@ -44,13 +44,13 @@ categories: [大学化学]
 
 ### 3. 溶液形成中的能量变化
 
-```
-(solute)n → n solute          ΔH_solute > 0（破坏溶质间作用力，吸热）
-(solvent)n → n solvent        ΔH_solvent > 0（破坏溶剂间作用力，吸热）
-n solute + n solvent → solution  ΔH_mix < 0（溶质–溶剂作用，放热）
-—————————————————————————————————————————————
-ΔH_soln = ΔH_solute + ΔH_solvent + ΔH_mix
-```
+$(\text{solute})_n \rightarrow n\;\text{solute}\quad \Delta H_{\text{solute}} > 0$（破坏溶质间作用力，吸热）
+
+$(\text{solvent})_n \rightarrow n\;\text{solvent}\quad \Delta H_{\text{solvent}} > 0$（破坏溶剂间作用力，吸热）
+
+$n\;\text{solute} + n\;\text{solvent} \rightarrow \text{solution}\quad \Delta H_{\text{mix}} < 0$（溶质–溶剂作用，放热）
+
+$$\Delta H_{\text{soln}} = \Delta H_{\text{solute}} + \Delta H_{\text{solvent}} + \Delta H_{\text{mix}}$$
 
 - **Exothermic dissolution（放热溶解）**：$ΔH_{solv} < 0$（如 MgSO₄）
 - **Endothermic dissolution（吸热溶解）**：$ΔH_{solv} > 0$（如 NH₄NO₃ → 速冷冰袋）
