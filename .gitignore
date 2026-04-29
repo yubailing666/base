@@ -9,3 +9,4 @@ assets/jsconfig.json
 # 忽略操作系统的系统文件
 .DS_Store
 Thumbs.db
+hugo.exe
