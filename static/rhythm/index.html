@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>节奏训练器 · 越雨</title>
+<style>
+  :root {
+    --bg: #0f0f14;
+    --surface: #1a1a24;
+    --card: #222233;
+    --accent-4: #4a7cff;
+    --accent-3: #ff6b4a;
+    --accent-4-glow: rgba(74,124,255,0.3);
+    --accent-3-glow: rgba(255,107,74,0.3);
+    --text: #e8e8f0;
+    --text-dim: #8888aa;
+    --green: #4ae;
+    --red: #e44;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border-radius: 32px;
+    padding: 28px 24px 32px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .logo {
+    font-size: 14px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+  .logo span { color: var(--accent-4); }
+
+  /* BPM */
+  .bpm-section {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .bpm-display {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -2px;
+  }
+  .bpm-display .unit {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-dim);
+    letter-spacing: 0;
+  }
+  .bpm-controls {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 8px;
+  }
+  .bpm-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--card);
+    background: var(--card);
+    color: var(--text);
+    font-size: 24px;
+    font-weight: 300;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .bpm-btn:active { background: var(--accent-4); border-color: var(--accent-4); }
+
+  /* Beat track */
+  .beat-area {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 20px 16px;
+    margin-bottom: 20px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .track {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .track-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    width: 28px;
+    flex-shrink: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .dots {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+  }
+  .dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2a2a3a;
+    transition: all 0.08s ease;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .dot-4 {
+    background: #2a2a3a;
+    box-shadow: none;
+  }
+  .dot-4.active {
+    background: var(--accent-4);
+    box-shadow: 0 0 20px var(--accent-4-glow);
+    transform: scale(1.15);
+  }
+  .dot-4.accent {
+    background: #1e2a50;
+  }
+  .dot-4.accent.active {
+    background: #6a9aff;
+    box-shadow: 0 0 28px rgba(74,124,255,0.5);
+    transform: scale(1.25);
+  }
+
+  .dot-3 {
+    background: #2a1a1a;
+  }
+  .dot-3.active {
+    background: var(--accent-3);
+    box-shadow: 0 0 20px var(--accent-3-glow);
+    transform: scale(1.15);
+  }
+  .dot-3.accent {
+    background: #3a1e1a;
+  }
+  .dot-3.accent.active {
+    background: #ff8a6a;
+    box-shadow: 0 0 28px rgba(255,107,74,0.5);
+    transform: scale(1.25);
+  }
+  .dot.disabled {
+    opacity: 0.15;
+  }
+
+  /* Aux toggle */
+  .aux-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 4px;
+    margin-bottom: 8px;
+  }
+  .aux-label {
+    font-size: 15px;
+    color: var(--text-dim);
+  }
+  .aux-label .tag {
+    display: inline-block;
+    font-size: 11px;
+    background: var(--accent-3);
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  .switch {
+    width: 52px;
+    height: 28px;
+    border-radius: 14px;
+    background: #3a3a4a;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .switch.on { background: var(--accent-3); }
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.2s;
+  }
+  .switch.on::after { transform: translateX(24px); }
+
+  /* Start/Stop */
+  .play-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 16px;
+  }
+  .play-btn.start {
+    background: var(--accent-4);
+    color: #fff;
+  }
+  .play-btn.start:active { background: #3a6aee; }
+  .play-btn.stop {
+    background: var(--red);
+    color: #fff;
+  }
+  .play-btn.stop:active { background: #c33; }
+
+  /* beats info */
+  .info {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    font-size: 13px;
+    color: var(--text-dim);
+    padding-top: 4px;
+  }
+  .info .note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .info .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+  .swatch-4 { background: var(--accent-4); }
+  .swatch-3 { background: var(--accent-3); }
+
+  /* progress bar */
+  .progress-bar {
+    width: 100%;
+    height: 3px;
+    background: #2a2a3a;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-4), var(--accent-3));
+    border-radius: 2px;
+    transition: width 0.05s linear;
+  }
+
+  @media (max-width: 400px) {
+    .app { padding: 20px 16px 24px; }
+    .bpm-display { font-size: 52px; }
+    .dot { width: 30px; height: 30px; }
+    .dots { gap: 6px; }
+  }
+  @media (min-width: 600px) {
+    .dot { width: 44px; height: 44px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo"><span>◈</span> 节奏训练器</div>
+    <div class="logo" style="font-size:11px;letter-spacing:1px;">POLYRHYTHM</div>
+  </div>
+
+  <!-- BPM -->
+  <div class="bpm-section">
+    <div class="bpm-display" id="bpmDisplay">120 <span class="unit">BPM</span></div>
+    <div class="bpm-controls">
+      <button class="bpm-btn" id="bpmDown">−</button>
+      <button class="bpm-btn" id="bpmUp">+</button>
+    </div>
+  </div>
+
+  <!-- Beat visualization -->
+  <div class="beat-area" id="beatArea">
+    <!-- Track A: 4/4 -->
+    <div class="track">
+      <div class="track-label">4/4</div>
+      <div class="dots" id="track4">
+        <div class="dot dot-4 accent" data-beat="0"></div>
+        <div class="dot dot-4" data-beat="1"></div>
+        <div class="dot dot-4" data-beat="2"></div>
+        <div class="dot dot-4" data-beat="3"></div>
+      </div>
+    </div>
+    <!-- Track B: 3/4 (aux) -->
+    <div class="track" id="track3Wrap">
+      <div class="track-label" style="color:var(--accent-3);">3/4</div>
+      <div class="dots" id="track3">
+        <div class="dot dot-3 accent" data-beat="0"></div>
+        <div class="dot dot-3" data-beat="1"></div>
+        <div class="dot dot-3" data-beat="2"></div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- Aux toggle -->
+  <div class="aux-toggle">
+    <div class="aux-label">
+      辅助声部 <span class="tag">3/4</span>
+    </div>
+    <div class="switch" id="auxSwitch"></div>
+  </div>
+
+  <!-- Play -->
+  <button class="play-btn start" id="playBtn">▶ 开始</button>
+
+  <!-- Info -->
+  <div class="info">
+    <span class="note"><span class="swatch swatch-4"></span> 底拍 4/4</span>
+    <span class="note" id="auxInfo"><span class="swatch swatch-3"></span> 辅助 3/4</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // --- State ---
+  const state = {
+    bpm: 120,
+    playing: false,
+    auxOn: false,
+    beat4: 0,      // current beat index for 4/4 (0-3)
+    beat3: 0,      // current beat index for 3/4 (0-2)
+    phase4: 0,     // phase in a 4-beat bar
+    tickCount: 0,  // total ticks (each = 1/12 of a 4/4 beat, LCM of 4 and 3)
+  };
+
+  // --- Audio ---
+  let audioCtx = null;
+  let nextTickTime = 0;    // absolute time for the next tick
+  let timerId = null;
+
+  const TICK_RESOLUTION = 12;  // LCM of 4 and 3
+  // Each 4/4 beat = 3 ticks (12/4)
+  // Each 3/4 beat = 4 ticks (12/3)
+
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  // Play a tick sound
+  function playTick(time, voice, accent) {
+    if (!audioCtx) return;
+
+    if (voice === '4') {
+      // 4/4 voice: kick-like, low frequency
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(accent ? 120 : 90, time);
+      if (accent) {
+        osc.frequency.exponentialRampToValueAtTime(60, time + 0.08);
+      } else {
+        osc.frequency.exponentialRampToValueAtTime(50, time + 0.06);
+      }
+      gain.gain.setValueAtTime(accent ? 0.5 : 0.3, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + (accent ? 0.12 : 0.08));
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(time);
+      osc.stop(time + (accent ? 0.12 : 0.08));
+    } else if (voice === '3') {
+      // 3/4 voice: click-like, higher frequency
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(accent ? 880 : 660, time);
+      gain.gain.setValueAtTime(accent ? 0.25 : 0.15, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(time);
+      osc.stop(time + 0.04);
+    }
+  }
+
+  // --- Beat dots update ---
+  function getBeats() { return { b4: state.beat4, b3: state.beat3 }; }
+  function setBeats(b4, b3) {
+    state.beat4 = b4;
+    state.beat3 = b3;
+    updateDots();
+  }
+
+  function updateDots() {
+    const dots4 = document.querySelectorAll('#track4 .dot-4');
+    dots4.forEach((dot, i) => {
+      dot.classList.toggle('active', i === state.beat4);
+    });
+    const dots3 = document.querySelectorAll('#track3 .dot-3');
+    dots3.forEach((dot, i) => {
+      dot.classList.toggle('active', i === state.beat3);
+    });
+    // progress
+    const total4Beats = 4 * 3; // 12 ticks per bar
+    const progress = (state.tickCount % total4Beats) / total4Beats * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+  }
+
+  // --- Scheduling ---
+  function scheduleTick() {
+    const bpm = state.bpm;
+    if (!bpm) return;
+
+    // One tick duration in seconds: beat duration / (TICK_RESOLUTION/4)
+    // beat duration = 60/bpm
+    // We have TICK_RESOLUTION ticks per 4/4 beat (quarter note)
+    // Actually no: we have TICK_RESOLUTION ticks per ONE quarter note? 
+    // Let's think: a 4/4 bar = 4 beats. Our tick resolution is the LCM of beat divisions.
+    // We want each tick to be 1/TICK_RESOLUTION of a 4/4 bar.
+    // Each 4/4 bar has 4 beats, so each beat = 3 ticks (12/4)
+    // tickDuration = (60/bpm) / 3 seconds (since 3 ticks per quarter note)
+    
+    // Actually I need to reconsider. The LCM of 4 and 3 is 12, but this makes each tick
+    // very small. Let me think differently:
+    // - 4/4: each beat = 3 ticks (12/4 = 3)
+    // - 3/4: each beat = 4 ticks (12/3 = 4)
+    // - Total per bar: 12 ticks (LCM)
+    // Tick duration: 60/bpm/3 seconds (since 3 ticks per quarter note)
+    
+    const tickDuration = 60 / bpm / 3;  // 3 ticks per quarter note
+
+    const now = audioCtx.currentTime;
+    if (nextTickTime < now) {
+      nextTickTime = now;
+    }
+
+    // Schedule ahead by 200ms
+    while (nextTickTime < now + 0.2) {
+      const tickInBar = state.tickCount % 12;
+
+      // 4/4 beats: beat changes every 3 ticks
+      const beat4New = Math.floor(tickInBar / 3);
+      if (beat4New !== state.beat4) {
+        state.beat4 = beat4New;
+      }
+
+      // 3/4 beats: beat changes every 4 ticks
+      const beat3New = Math.floor(tickInBar / 4);
+      if (beat3New !== state.beat3) {
+        state.beat3 = beat3New;
+      }
+
+      // Play sounds at beat boundaries
+      // 4/4 plays every 3 ticks (start of each beat)
+      if (tickInBar % 3 === 0) {
+        const beatIdx = tickInBar / 3;
+        playTick(nextTickTime, '4', beatIdx === 0);
+      }
+      // 3/4 plays every 4 ticks if aux is on
+      if (state.auxOn && tickInBar % 4 === 0) {
+        const beatIdx = tickInBar / 4;
+        playTick(nextTickTime, '3', beatIdx === 0);
+      }
+
+      // Update visual at beat boundaries (first tick of each beat)
+      if (tickInBar % 3 === 0) {
+        state.beat4 = tickInBar / 3;
+      }
+      if (state.auxOn && tickInBar % 4 === 0) {
+        state.beat3 = tickInBar / 4;
+      }
+
+      // Update visuals on UI thread
+      if (tickInBar % 2 === 0 || tickInBar === 0) {
+        // Throttle visual updates
+      }
+
+      nextTickTime += tickDuration;
+      state.tickCount++;
+    }
+  }
+
+  function schedulerLoop() {
+    if (!state.playing) return;
+    try {
+      scheduleTick();
+    } catch(e) {
+      console.warn('scheduler err:', e);
+    }
+    // Also update visuals periodically
+    updateDots();
+    timerId = requestAnimationFrame(schedulerLoop);
+  }
+
+  // --- Controls ---
+  function start() {
+    initAudio();
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    state.playing = true;
+    state.beat4 = 0;
+    state.beat3 = 0;
+    state.tickCount = 0;
+    nextTickTime = audioCtx.currentTime + 0.05;
+    updateDots();
+    document.getElementById('playBtn').textContent = '■ 停止';
+    document.getElementById('playBtn').className = 'play-btn stop';
+    schedulerLoop();
+  }
+
+  function stop() {
+    state.playing = false;
+    if (timerId) {
+      cancelAnimationFrame(timerId);
+      timerId = null;
+    }
+    state.beat4 = 0;
+    state.beat3 = 0;
+    state.tickCount = 0;
+    updateDots();
+    document.getElementById('playBtn').textContent = '▶ 开始';
+    document.getElementById('playBtn').className = 'play-btn start';
+  }
+
+  function togglePlay() {
+    if (state.playing) {
+      stop();
+    } else {
+      start();
+    }
+  }
+
+  function setBpm(val) {
+    state.bpm = Math.max(30, Math.min(300, val));
+    document.getElementById('bpmDisplay').innerHTML = state.bpm + ' <span class="unit">BPM</span>';
+  }
+
+  function toggleAux() {
+    state.auxOn = !state.auxOn;
+    document.getElementById('auxSwitch').classList.toggle('on', state.auxOn);
+    document.getElementById('track3Wrap').style.opacity = state.auxOn ? '1' : '0.3';
+    const info = document.getElementById('auxInfo');
+    info.style.opacity = state.auxOn ? '1' : '0.3';
+  }
+
+  // --- Init ---
+  function init() {
+    // BPM controls
+    document.getElementById('bpmUp').addEventListener('click', () => setBpm(state.bpm + 5));
+    document.getElementById('bpmDown').addEventListener('click', () => setBpm(state.bpm - 5));
+
+    // Play
+    document.getElementById('playBtn').addEventListener('click', togglePlay);
+
+    // Aux switch
+    document.getElementById('auxSwitch').addEventListener('click', toggleAux);
+
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+    });
+
+    // Initial state
+    setBpm(120);
+    toggleAux(); // start with aux off
+    updateDots();
+  }
+
+  // Wait for user interaction to init (mobile autoplay policy)
+  document.addEventListener('click', () => {
+    if (!audioCtx) {
+      initAudio();
+    }
+  }, { once: true });
+
+  init();
+})();
+</script>
+</body>
+</html>
