@@ -534,7 +534,36 @@
   let nextTickTime = 0;
   let timerId = null;
 
-  // --- Sounds ---
+  // --- Pre-created FX chain (Serum-style) ---
+  let fxChain = null;  // { compressor, convolver, distCurve }
+
+  // Soft-clip waveshaping curve
+  function makeDistCurve(amount) {
+    const n = 256;
+    const curve = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const x = (i / n) * 2 - 1;
+      const k = amount;
+      curve[i] = ((Math.PI + k) * x) / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
+  }
+
+  // Synthesize reverb impulse response (small room)
+  function makeReverbIR(audioCtx, dur, decay) {
+    const sr = audioCtx.sampleRate;
+    const len = Math.floor(sr * dur);
+    const buf = audioCtx.createBuffer(2, len, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++) {
+        // stereo spread with slightly different noise
+        const noise = (Math.random() * 2 - 1);
+        d[i] = noise * Math.pow(1 - i / len, decay);
+      }
+    }
+    return buf;
+  }
 
   function initAudio() {
     if (!audioCtx) {
@@ -542,51 +571,191 @@
       masterGain = audioCtx.createGain();
       masterGain.gain.setValueAtTime(state.volume, audioCtx.currentTime);
       masterGain.connect(audioCtx.destination);
+
+      // --- Build Serum-style shared FX chain ---
+      fxChain = {};
+
+      // 1. Compression: glue it together
+      const comp = audioCtx.createDynamicsCompressor();
+      comp.threshold.setValueAtTime(-18, audioCtx.currentTime);
+      comp.knee.setValueAtTime(6, audioCtx.currentTime);
+      comp.ratio.setValueAtTime(3, audioCtx.currentTime);
+      comp.attack.setValueAtTime(0.002, audioCtx.currentTime);
+      comp.release.setValueAtTime(0.08, audioCtx.currentTime);
+
+      // 2. Reverb: short room plate using convolution
+      const reverbIR = makeReverbIR(audioCtx, 0.12, 3);
+      const conv = audioCtx.createConvolver();
+      conv.buffer = reverbIR;
+      const reverbSend = audioCtx.createGain();
+      reverbSend.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      const reverbOut = audioCtx.createGain();
+      reverbOut.gain.setValueAtTime(0.4, audioCtx.currentTime);
+
+      // 3. Distortion curve (pre-calculated)
+      const distCurve = makeDistCurve(15);
+
+      // Wire: dry → comp → master
+      //       dry → distCurve + reverbSend → conv → master
+      comp.connect(masterGain);
+
+      fxChain.compressor = comp;
+      fxChain.convolver = conv;
+      fxChain.reverbSend = reverbSend;
+      fxChain.reverbOut = reverbOut;
+      fxChain.distCurve = distCurve;
+
+      // Connect reverb chain permanently
+      reverbSend.connect(conv);
+      conv.connect(reverbOut);
+      reverbOut.connect(masterGain);
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
   }
 
+  // --- Kick: Triangle + Square, unison, filter sweep, dist, comp, reverb ---
   function playKick(time, accent) {
-    if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(accent ? 120 : 90, time);
-    osc.frequency.exponentialRampToValueAtTime(50, time + 0.08);
-    gain.gain.setValueAtTime(accent ? 0.8 : 0.5, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + (accent ? 0.15 : 0.10));
-    osc.connect(gain);
-    gain.connect(masterGain);
-    osc.start(time);
-    osc.stop(time + (accent ? 0.15 : 0.10));
+    if (!audioCtx || !fxChain) return;
+
+    const baseFreq = accent ? 180 : 140;
+    const dur = accent ? 0.18 : 0.13;
+    const level = accent ? 0.6 : 0.4;
+
+    // Shared filter for this kick
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(3000, time);
+    filter.frequency.exponentialRampToValueAtTime(60, time + dur);
+    filter.Q.setValueAtTime(0.7, time);
+
+    // Distortion (unique per kick to avoid cross-talk)
+    const saturate = audioCtx.createWaveShaper();
+    saturate.curve = fxChain.distCurve;
+
+    // Dry send to compressor
+    const dryGain = audioCtx.createGain();
+    dryGain.gain.setValueAtTime(level, time);
+
+    // Reverb send
+    const revSend = audioCtx.createGain();
+    revSend.gain.setValueAtTime(level * 0.25, time);
+
+    // Sum bus for unison voices
+    const sum = audioCtx.createGain();
+    sum.gain.setValueAtTime(1, time);
+
+    // --- Unison voice configs ---
+    // Triangle: body, Square: attack snap
+    const voices = accent ? [
+      { type: 'triangle', detune: 0,   gain: 0.50 },
+      { type: 'square',   detune: 0,   gain: 0.25 },
+      { type: 'triangle', detune: 3,   gain: 0.15 },
+      { type: 'square',   detune: -2,  gain: 0.10 },
+      { type: 'triangle', detune: -4,  gain: 0.08 },
+    ] : [
+      { type: 'triangle', detune: 0,   gain: 0.45 },
+      { type: 'square',   detune: 0,   gain: 0.20 },
+      { type: 'triangle', detune: 2.5, gain: 0.12 },
+      { type: 'square',   detune: -2,  gain: 0.08 },
+    ];
+
+    for (const v of voices) {
+      const osc = audioCtx.createOscillator();
+      osc.type = v.type;
+      osc.frequency.setValueAtTime(baseFreq, time);
+      osc.frequency.exponentialRampToValueAtTime(50, time + dur * 0.8);
+      osc.detune.setValueAtTime(v.detune, time);
+
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(v.gain, time);
+
+      osc.connect(g);
+      g.connect(sum);
+
+      osc.start(time);
+      osc.stop(time + dur + 0.02);
+    }
+
+    // Route: sum → filter → saturate → (dry + rev) → comp/conv → master
+    sum.connect(filter);
+    filter.connect(saturate);
+    saturate.connect(dryGain);
+    dryGain.connect(fxChain.compressor);
+
+    saturate.connect(revSend);
+    revSend.connect(fxChain.reverbSend);
   }
 
+  // --- Sub click (8th notes): simpler, just triangle with dist + reverb ---
   function playSub(time, isLong) {
-    if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(isLong ? 520 : 380, time);
-    gain.gain.setValueAtTime(isLong ? 0.20 : 0.14, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
-    osc.connect(gain);
-    gain.connect(masterGain);
-    osc.start(time);
-    osc.stop(time + 0.04);
-  }
+    if (!audioCtx || !fxChain) return;
 
-  function playPoly3(time, accent) {
-    if (!audioCtx) return;
+    const freq = isLong ? 480 : 350;
+    const level = isLong ? 0.15 : 0.10;
+
     const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(accent ? 1000 : 750, time);
-    gain.gain.setValueAtTime(accent ? 0.35 : 0.20, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
-    osc.connect(gain);
-    gain.connect(masterGain);
+    osc.frequency.setValueAtTime(freq, time);
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(level, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.035 + (isLong ? 0.01 : 0));
+
+    // Light saturation
+    const sat = audioCtx.createWaveShaper();
+    sat.curve = fxChain.distCurve;
+
+    // Dry
+    const dry = audioCtx.createGain();
+    dry.gain.setValueAtTime(0.7, time);
+
+    // Reverb send
+    const rev = audioCtx.createGain();
+    rev.gain.setValueAtTime(0.2, time);
+
+    osc.connect(g);
+    g.connect(sat);
+    sat.connect(dry);
+    dry.connect(fxChain.compressor);
+
+    sat.connect(rev);
+    rev.connect(fxChain.reverbSend);
+
     osc.start(time);
     osc.stop(time + 0.05);
+  }
+
+  // --- 3/4 voice: more present, bell-like with FM character ---
+  function playPoly3(time, accent) {
+    if (!audioCtx || !fxChain) return;
+
+    const freq = accent ? 1100 : 800;
+    const level = accent ? 0.25 : 0.15;
+
+    // Dual-oscillator FM-ish: triangle sub + sine body
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, time);
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(level, time);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+
+    const sat = audioCtx.createWaveShaper();
+    sat.curve = fxChain.distCurve;
+
+    const rev = audioCtx.createGain();
+    rev.gain.setValueAtTime(0.3, time);
+
+    osc.connect(g);
+    g.connect(sat);
+    sat.connect(fxChain.compressor);
+
+    sat.connect(rev);
+    rev.connect(fxChain.reverbSend);
+
+    osc.start(time);
+    osc.stop(time + 0.06);
   }
 
   // --- Scheduling ---
