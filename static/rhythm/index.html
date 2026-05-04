@@ -2,175 +2,147 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>节拍游乐场 · 越雨</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>节拍游乐场</title>
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box}
 body{
   font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
-  background:#f5f0eb;color:#2c2420;min-height:100dvh;display:flex;
-  flex-direction:column;align-items:center;justify-content:center;
-  padding:16px;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent
+  background:#1a1614;color:#f0ece6;min-height:100dvh;overflow:hidden;
+  user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent
 }
-.app{
-  width:100%;max-width:420px;background:#fffdfa;border-radius:40px;
-  padding:28px 20px;box-shadow:0 2px 20px rgba(44,36,32,.06),0 8px 40px rgba(44,36,32,.04)
+
+/* ===== Canvas ===== */
+#viz{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  display:block;background:#1a1614
 }
-.title{font-size:15px;font-weight:700;color:#2c2420;letter-spacing:-.3px}
-.sub{font-size:12px;color:#a0988a;font-weight:500}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.menu-btn{width:36px;height:36px;border-radius:12px;border:none;background:#f0ece6;color:#8a8072;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.menu-btn:active{background:#e5ddd2;transform:scale(.92)}
+#viz.fullscreen{z-index:100}
 
-.bpm-box{background:#f8f4ef;border-radius:24px;padding:16px;margin-bottom:16px;text-align:center}
-.bpm-row{display:flex;align-items:center;justify-content:center;gap:20px}
-.bpm-btn{width:44px;height:44px;border-radius:50%;border:2px solid #e5ddd2;background:#fffdfa;color:#8a8072;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.bpm-btn:active{background:#ff8a6a;border-color:#ff8a6a;color:#fff;transform:scale(.92)}
-.bpm-num{font-size:52px;font-weight:800;color:#2c2420;letter-spacing:-2px;line-height:1}
-.bpm-unit{font-size:14px;color:#a0988a;margin-left:2px}
-
-.tracks{display:flex;gap:8px;margin-bottom:12px}
-.track-card{flex:1;background:#f8f4ef;border-radius:20px;padding:14px 12px 12px;position:relative;overflow:hidden}
-.track-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:0 0 3px 3px}
-.track-card.t0::before{background:#ff8a6a}
-.track-card.t1::before{background:#6ab0c8}
-.track-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.track-name{font-size:11px;font-weight:600;letter-spacing:.5px}
-.track-name.t0{color:#ff8a6a}.track-name.t1{color:#6ab0c8}
-.beat-stepper{display:flex;align-items:center;gap:6px}
-.beat-stepper .num{font-size:22px;font-weight:700;color:#2c2420;min-width:22px;text-align:center}
-.beat-stepper .stepper{width:26px;height:26px;border-radius:8px;border:1.5px solid #e5ddd2;background:#fffdfa;color:#8a8072;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.beat-stepper .stepper:active{background:#ff8a6a;border-color:#ff8a6a;color:#fff;transform:scale(.88)}
-.beat-stepper .stepper.t1:active{background:#6ab0c8;border-color:#6ab0c8}
-.dots{display:flex;gap:4px;justify-content:center;min-height:16px;padding:2px 0}
-.dot{width:16px;height:16px;border-radius:8px;transition:all .08s cubic-bezier(.34,1.56,.64,1);flex-shrink:0}
-.dot.t0{background:#edd7cc}.dot.t0.active{background:#ff8a6a;transform:scale(1.3)}
-.dot.t1{background:#c8dde3}.dot.t1.active{background:#6ab0c8;transform:scale(1.3)}
-.dot.accent{opacity:.6}.dot.accent.active{opacity:1;transform:scale(1.5)}
-
-.swing-box{background:#f8f4ef;border-radius:20px;padding:12px 16px;margin-bottom:12px}
-.swing-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.swing-head .label{font-size:11px;color:#a0988a;font-weight:500}
-.swing-head .val{font-size:15px;font-weight:700;color:#ff8a6a}
-.swing-slider{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:linear-gradient(90deg,#edd7cc,#ff8a6a);outline:none;cursor:pointer}
-.swing-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fffdfa;border:3px solid #ff8a6a;cursor:pointer}
-
-.progress-box{background:#f8f4ef;border-radius:12px;padding:4px;margin-bottom:12px;position:relative;overflow:hidden}
-.progress-fill{height:8px;border-radius:8px;width:0%;background:linear-gradient(90deg,#ff8a6a,#6ab0c8);transition:width .03s linear}
-.progress-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:600;color:#8a8072;letter-spacing:2px}
-
-.play-btn{width:100%;padding:16px;border:none;border-radius:18px;font-size:17px;font-weight:700;letter-spacing:1px;cursor:pointer;margin-bottom:12px}
-.play-btn.start{background:#ff8a6a;color:#fff;box-shadow:0 4px 12px rgba(255,138,106,.3)}
-.play-btn.start:active{transform:scale(.97)}
-.play-btn.stop{background:#2c2420;color:#fff}
-.play-btn.stop:active{transform:scale(.97)}
-
-.mode-bar{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
-.mode-badge{font-size:10px;font-weight:600;padding:4px 10px;border-radius:20px;background:#f0ece6;color:#a0988a;letter-spacing:.5px}
-
-.panel{overflow:hidden;max-height:0;opacity:0;transition:all .3s ease;margin-bottom:0}
-.panel.open{max-height:500px;opacity:1;margin-bottom:16px}
-.panel-inner{background:#f8f4ef;border-radius:24px;padding:16px;font-size:13px}
-.panel-label{font-size:11px;font-weight:600;color:#a0988a;margin-bottom:8px;letter-spacing:1px}
-.preset-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.preset-item{padding:6px 4px;border-radius:10px;border:1.5px solid #e5ddd2;background:#fffdfa;font-size:10px;color:#8a8072;cursor:pointer;text-align:center}
-.preset-item:active{transform:scale(.92)}
-.preset-item .icon{font-size:16px;display:block}
-.preset-item.active{border-color:#ff8a6a;background:rgba(255,138,106,.1);color:#ff8a6a}
-.sample-row{display:flex;gap:8px}
-.sample-btn{flex:1;padding:8px;border:1.5px solid #e5ddd2;border-radius:10px;background:#fffdfa;color:#8a8072;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
-.sample-btn:active{transform:scale(.95)}
-.sample-btn.done{background:rgba(106,176,200,.1);border-color:#6ab0c8;color:#6ab0c8}
-
-@media(max-width:400px){
-  .app{padding:20px 14px}
-  .bpm-num{font-size:44px}
-  .preset-grid{grid-template-columns:repeat(3,1fr)}
+/* ===== Controls overlay ===== */
+.controls{
+  position:fixed;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(26,22,20,.95) 30%);
+  padding:60px 20px 28px;z-index:10;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1)
 }
+.controls.hidden{transform:translateY(100%)}
+
+.ctrl-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px}
+.bpm-num{font-size:40px;font-weight:800;letter-spacing:-1px;color:#ff8a6a;font-variant-numeric:tabular-nums;min-width:100px;text-align:center}
+.bpm-unit{font-size:14px;color:#8a8072;font-weight:500;margin-left:2px}
+.bpm-btn{width:40px;height:40px;border-radius:50%;border:1.5px solid #3a3028;background:transparent;color:#a0988a;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.bpm-btn:active{background:#ff8a6a;border-color:#ff8a6a;color:#fff;transform:scale(.88)}
+
+.track-tags{display:flex;gap:16px;justify-content:center;margin-bottom:8px}
+.tag{font-size:11px;font-weight:600;letter-spacing:1px;padding:3px 10px;border-radius:12px}
+.tag.a{color:#ff8a6a;border:1px solid rgba(255,138,106,.3)}
+.tag.b{color:#6ab0c8;border:1px solid rgba(106,176,200,.3)}
+
+.play-row{display:flex;align-items:center;justify-content:center;gap:16px}
+.play-btn{
+  width:56px;height:56px;border-radius:50%;border:none;
+  font-size:22px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center
+}
+.play-btn.start{background:#ff8a6a;color:#fff;box-shadow:0 4px 16px rgba(255,138,106,.3)}
+.play-btn.start:active{transform:scale(.9)}
+.play-btn.stop{background:#3a3028;color:#f0ece6}
+.play-btn.stop:active{transform:scale(.9)}
+
+/* ===== Floating buttons ===== */
+.floating{position:fixed;z-index:20;border:none;background:rgba(60,50,40,.7);backdrop-filter:blur(8px);color:#a0988a;font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.floating:active{transform:scale(.88)}
+
+.fs-btn{top:16px;right:16px;width:40px;height:40px;border-radius:12px}
+.mode-btn{top:16px;left:16px;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:1px;gap:6px}
+
+/* ===== Beat stepper popup ===== */
+.popup{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%) scale(.9);
+  background:rgba(40,34,30,.95);backdrop-filter:blur(12px);
+  border-radius:24px;padding:16px 20px;z-index:30;
+  opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  display:flex;gap:20px;min-width:240px
+}
+.popup.open{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1)}
+.popup-track{text-align:center}
+.popup-track .label{font-size:10px;font-weight:600;letter-spacing:1px;margin-bottom:4px}
+.popup-track .label.a{color:#ff8a6a}.popup-track .label.b{color:#6ab0c8}
+.popup-stepper{display:flex;align-items:center;gap:8px}
+.popup-stepper .num{font-size:24px;font-weight:700;min-width:28px;text-align:center}
+.popup-stepper .btn{width:32px;height:32px;border-radius:10px;border:1.5px solid #3a3028;background:transparent;color:#a0988a;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.popup-stepper .btn:active{background:#ff8a6a;border-color:#ff8a6a;color:#fff}
+.popup-stepper .btn.b:active{background:#6ab0c8;border-color:#6ab0c8}
+
+/* ===== Mode labels on canvas ===== */
+.viz-label{
+  position:fixed;top:60px;left:50%;transform:translateX(-50%);
+  font-size:13px;font-weight:600;color:#5a5048;letter-spacing:2px;z-index:5;
+  pointer-events:none;transition:opacity .3s
+}
+.viz-label span{color:#ff8a6a}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="top">
-    <div><div class="title">◈ 节拍游乐场</div><div class="sub"><span id="modeLabel">4:4</span> · <span id="presetLabel">Analog</span></div></div>
-    <button class="menu-btn" id="gearBtn">⚙</button>
-  </div>
 
-  <div class="panel" id="settingsPanel">
-    <div class="panel-inner">
-      <div><div class="panel-label">音色</div><div class="preset-grid" id="presetGrid"></div></div>
-      <div style="margin-top:12px"><div class="panel-label">采样器</div>
-        <div class="sample-row">
-          <button class="sample-btn" id="samplerA">● A 轨</button>
-          <button class="sample-btn" id="samplerB">● B 轨</button>
-        </div>
-      </div>
+<canvas id="viz"></canvas>
+<div class="viz-label" id="vizLabel">4 : 4<span style="color:#5a5048"> · </span>80 bpm</div>
+
+<button class="floating mode-btn" id="modeToggleBtn">◉ 同心圆</button>
+<button class="floating fs-btn" id="fsBtn">⛶</button>
+
+<div class="controls" id="controls">
+  <div class="ctrl-row">
+    <button class="bpm-btn" id="bpmDown">−</button>
+    <div><span class="bpm-num" id="bpmDisplay">80</span><span class="bpm-unit">bpm</span></div>
+    <button class="bpm-btn" id="bpmUp">+</button>
+  </div>
+  <div class="track-tags">
+    <span class="tag a" id="tagA">A · 4</span>
+    <span class="tag b" id="tagB">B · 4</span>
+  </div>
+  <div class="play-row">
+    <button class="play-btn start" id="playBtn">▶</button>
+  </div>
+</div>
+
+<div class="popup" id="popup">
+  <div class="popup-track">
+    <div class="label a">· A ·</div>
+    <div class="popup-stepper">
+      <button class="btn" data-t="a" data-d="-1">−</button>
+      <span class="num" id="popA">4</span>
+      <button class="btn" data-t="a" data-d="1">+</button>
     </div>
   </div>
-
-  <div class="bpm-box">
-    <div class="bpm-row">
-      <button class="bpm-btn" id="bpmDown">−</button>
-      <div><span class="bpm-num" id="bpmDisplay">80</span><span class="bpm-unit">bpm</span></div>
-      <button class="bpm-btn" id="bpmUp">+</button>
+  <div class="popup-track">
+    <div class="label b">· B ·</div>
+    <div class="popup-stepper">
+      <button class="btn b" data-t="b" data-d="-1">−</button>
+      <span class="num" id="popB">4</span>
+      <button class="btn b" data-t="b" data-d="1">+</button>
     </div>
   </div>
-
-  <div class="tracks">
-    <div class="track-card t0">
-      <div class="track-head">
-        <span class="track-name t0">· A ·</span>
-        <div class="beat-stepper">
-          <button class="stepper" data-track="a" data-dir="-1">−</button>
-          <span class="num" id="beatsA">4</span>
-          <button class="stepper" data-track="a" data-dir="1">+</button>
-        </div>
-      </div>
-      <div class="dots" id="dotsA"></div>
-    </div>
-    <div class="track-card t1">
-      <div class="track-head">
-        <span class="track-name t1">· B ·</span>
-        <div class="beat-stepper">
-          <button class="stepper t1" data-track="b" data-dir="-1">−</button>
-          <span class="num" id="beatsB">4</span>
-          <button class="stepper t1" data-track="b" data-dir="1">+</button>
-        </div>
-      </div>
-      <div class="dots" id="dotsB"></div>
-    </div>
-  </div>
-
-  <div class="swing-box">
-    <div class="swing-head"><span class="label">摇摆度</span><span class="val" id="swingDisplay">50</span></div>
-    <input type="range" class="swing-slider" id="swingSlider" min="50" max="75" value="50" step="0.5">
-  </div>
-
-  <div class="progress-box">
-    <div class="progress-fill" id="progressFill"></div>
-    <div class="progress-label" id="progressLabel">● 0</div>
-  </div>
-
-  <div class="mode-bar">
-    <span class="mode-badge" id="badgeType">直拍</span>
-    <span class="mode-badge" id="badgeLcm">LCM: 4</span>
-  </div>
-
-  <button class="play-btn start" id="playBtn">▶ 开始</button>
 </div>
 
 <script>
 (function(){
 'use strict';
-const PRESETS={analog:{name:'Analog',icon:'◈'},'808':{name:'808',icon:'◉'},elec:{name:'Elec',icon:'◇'},clap:{name:'Clap',icon:'👏'},wood:{name:'Wood',icon:'▣'},noise:{name:'Snare',icon:'⚡'}};
-const PKEYS=Object.keys(PRESETS);
-const state={bpm:80,playing:false,swingRatio:50,beatsA:4,beatsB:4,preset:'analog',barTick:0,sampler:{a:null,b:null},recording:null};
+
+// ===== State =====
+const S={
+  bpm:80,playing:false,beatsA:4,beatsB:4,swing:50,
+  preset:'analog',barTick:0,mode:'circle', // circle|timeline|radar
+  sampler:{a:null,b:null},recording:null,
+  popup:false,
+};
+
+// ===== Audio =====
 let ac=null,mg=null,ntt=0,tid=null,pst=0,fx=null;
 
 function md(a){const n=256,c=new Float32Array(n);for(let i=0;i<n;i++){const x=i/n*2-1;c[i]=((Math.PI+a)*x)/(Math.PI+a*Math.abs(x))}return c}
 function mir(c,d,dec){const r=c.sampleRate,l=Math.floor(r*d),b=c.createBuffer(2,l,r);for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<l;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/l,dec)}return b}
 function mn(c,d){const r=c.sampleRate,l=Math.floor(r*d),b=c.createBuffer(1,l,r),d=b.getChannelData(0);for(let i=0;i<l;i++)d[i]=Math.random()*2-1;return b}
-
 function ia(){
   if(ac)return;
   ac=new(window.AudioContext||window.webkitAudioContext)();
@@ -183,132 +155,281 @@ function ia(){
 
 function gcd(a,b){while(b){[a,b]=[b,a%b]}return a}function lcm(a,b){return(a*b)/gcd(a,b)}
 
-function bk(t,f,d,l,ac2){
+function bk(t,f,d,l,a2){
   if(!ac||!fx)return;
   const fi=ac.createBiquadFilter();fi.type='lowpass';fi.frequency.setValueAtTime(3000,t);fi.frequency.exponentialRampToValueAtTime(60,t+d);fi.Q.setValueAtTime(.7,t);
   const st=ac.createWaveShaper();st.curve=fx.dist;const dr=ac.createGain();dr.gain.setValueAtTime(l,t);const rv=ac.createGain();rv.gain.setValueAtTime(l*.25,t);const sm=ac.createGain();sm.gain.setValueAtTime(1,t);
-  const vs=ac2?[{t:'triangle',d:0,g:.5},{t:'square',d:0,g:.25},{t:'triangle',d:3,g:.15},{t:'square',d:-2,g:.1}]:[{t:'triangle',d:0,g:.45},{t:'square',d:0,g:.2},{t:'triangle',d:2.5,g:.12},{t:'square',d:-2,g:.08}];
+  const vs=a2?[{t:'triangle',d:0,g:.5},{t:'square',d:0,g:.25},{t:'triangle',d:3,g:.15},{t:'square',d:-2,g:.1}]:[{t:'triangle',d:0,g:.45},{t:'square',d:0,g:.2},{t:'triangle',d:2.5,g:.12},{t:'square',d:-2,g:.08}];
   for(const v of vs){const o=ac.createOscillator();o.type=v.t;o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(50,t+d*.8);o.detune.setValueAtTime(v.d,t);const g=ac.createGain();g.gain.setValueAtTime(v.g,t);o.connect(g);g.connect(sm);o.start(t);o.stop(t+d+.02)}
   sm.connect(fi);fi.connect(st);st.connect(dr);dr.connect(fx.comp);st.connect(rv);rv.connect(fx.rev)
 }
 function sk(t,f,d,l){if(!ac)return;const o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(f,t);const g=ac.createGain();g.gain.setValueAtTime(l,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(fx.comp);o.start(t);o.stop(t+d)}
 function ek(t,f,d,l){if(!ac)return;const o=ac.createOscillator();o.type='square';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(40,t+d*.7);const g=ac.createGain();g.gain.setValueAtTime(l,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(fx.comp);o.start(t);o.stop(t+d)}
-function nk(t,d,l,b){if(!ac||!fx)return;const s=ac.createBufferSource();s.buffer=fx.noise;const g=ac.createGain();g.gain.setValueAtTime(l,t);g.gain.exponentialRampToValueAtTime(.001,t+d);if(b){const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.setValueAtTime(2000,t);f.Q.setValueAtTime(2,t);s.connect(f);f.connect(g)}else s.connect(g);g.connect(fx.comp);s.start(t);s.stop(t+d)}
+function nk(t,d,l,b2){if(!ac||!fx)return;const s=ac.createBufferSource();s.buffer=fx.noise;const g=ac.createGain();g.gain.setValueAtTime(l,t);g.gain.exponentialRampToValueAtTime(.001,t+d);if(b2){const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.setValueAtTime(2000,t);f.Q.setValueAtTime(2,t);s.connect(f);f.connect(g)}else s.connect(g);g.connect(fx.comp);s.start(t);s.stop(t+d)}
 function wk(t,f,d,l){if(!ac)return;const o=ac.createOscillator();o.type='triangle';o.frequency.setValueAtTime(f,t);const g=ac.createGain();g.gain.setValueAtTime(l,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(fx.comp);o.start(t);o.stop(t+d)}
 function ct(t,f,l,r){if(!ac||!fx)return;const o=ac.createOscillator();o.type='triangle';o.frequency.setValueAtTime(f,t);const g=ac.createGain();g.gain.setValueAtTime(l,t);g.gain.exponentialRampToValueAtTime(.001,t+.04);const s=ac.createWaveShaper();s.curve=fx.dist;const d=ac.createGain();d.gain.setValueAtTime(1,t);o.connect(g);g.connect(s);s.connect(d);d.connect(fx.comp);if(r>0){const v=ac.createGain();v.gain.setValueAtTime(r,t);s.connect(v);v.connect(fx.rev)}o.start(t);o.stop(t+.05)}
 function bt(t,f,l,r){if(!ac||!fx)return;const o=ac.createOscillator();o.type='triangle';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.7,t+.04);const g=ac.createGain();g.gain.setValueAtTime(l,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);const s=ac.createWaveShaper();s.curve=fx.dist;o.connect(g);g.connect(s);s.connect(fx.comp);if(r>0){const v=ac.createGain();v.gain.setValueAtTime(r,t);s.connect(v);v.connect(fx.rev)}o.start(t);o.stop(t+.06)}
 function ps(t,b,l){if(!ac||!b)return;const s=ac.createBufferSource();s.buffer=b;const g=ac.createGain();g.gain.setValueAtTime(l,t);s.connect(g);g.connect(fx.comp);s.start(t)}
 
-function pt(t,tr,ac2){
+function pt(t,tr,a2){
   if(tr==='a'){
-    if(state.sampler.a){ps(t,state.sampler.a,ac2?.6:.4);return}
-    const p=state.preset;
-    if(p==='analog'){bk(t,ac2?180:140,ac2?.18:.13,ac2?.6:.4,ac2);return}
-    if(p==='808'){sk(t,ac2?60:50,ac2?.35:.3,ac2?.6:.4);return}
-    if(p==='elec'){ek(t,ac2?120:100,ac2?.1:.08,ac2?.5:.3);return}
-    if(p==='noise'){nk(t,ac2?.12:.08,ac2?.5:.3,true);return}
-    if(p==='clap'){nk(t,ac2?.1:.08,ac2?.4:.25,false);return}
-    if(p==='wood'){wk(t,ac2?2500:2000,ac2?.03:.02,ac2?.5:.3);return}
-    bk(t,140,.15,.4,ac2)
+    if(S.sampler.a){ps(t,S.sampler.a,a2?.6:.4);return}
+    const p=S.preset;
+    if(p==='analog'){bk(t,a2?180:140,a2?.18:.13,a2?.6:.4,a2);return}
+    if(p==='808'){sk(t,a2?60:50,a2?.35:.3,a2?.6:.4);return}
+    if(p==='elec'){ek(t,a2?120:100,a2?.1:.08,a2?.5:.3);return}
+    if(p==='noise'){nk(t,a2?.12:.08,a2?.5:.3,true);return}
+    if(p==='clap'){nk(t,a2?.1:.08,a2?.4:.25,false);return}
+    if(p==='wood'){wk(t,a2?2500:2000,a2?.03:.02,a2?.5:.3);return}
+    bk(t,140,.15,.4,a2)
   }else{
-    if(state.sampler.b){ps(t,state.sampler.b,ac2?.3:.2);return}
-    const p=state.preset;
-    if(p==='analog'){bt(t,ac2?1100:800,ac2?.25:.15,.3);return}
-    if(p==='808'){bt(t,ac2?550:440,ac2?.2:.12,.05);return}
-    if(p==='elec'){bt(t,ac2?950:750,ac2?.18:.1,0);return}
-    if(p==='clap'){ct(t,ac2?.08:.06,ac2?.2:.12);return}
-    if(p==='wood'){ct(t,ac2?4000:3200,ac2?.15:.1,0);return}
-    if(p==='noise'){ct(t,ac2?1200:900,ac2?.1:.06,0);return}
+    if(S.sampler.b){ps(t,S.sampler.b,a2?.3:.2);return}
+    const p=S.preset;
+    if(p==='analog'){bt(t,a2?1100:800,a2?.25:.15,.3);return}
+    if(p==='808'){bt(t,a2?550:440,a2?.2:.12,.05);return}
+    if(p==='elec'){bt(t,a2?950:750,a2?.18:.1,0);return}
+    if(p==='clap'){ct(t,a2?.08:.06,a2?.2:.12);return}
+    if(p==='wood'){ct(t,a2?4000:3200,a2?.15:.1,0);return}
+    if(p==='noise'){ct(t,a2?1200:900,a2?.1:.06,0);return}
     bt(t,1100,.25,.3)
   }
 }
 
-function gbd(){return 60/state.bpm}
-
+// ===== Scheduler =====
+function gbd(){return 60/S.bpm}
 function sl(){
-  if(!state.playing)return;
+  if(!S.playing)return;
   try{
     const n=ac.currentTime;if(ntt<n)ntt=n;
-    const bd=gbd(),ba=state.beatsA,bb=state.beatsB,L=lcm(ba,bb),td=bd/(L/4);
+    const bd=gbd(),ba=S.beatsA,bb=S.beatsB,L=lcm(ba,bb),td=bd/(L/4);
     while(ntt<n+.15){
-      const tk=state.barTick%L;
-      if(tk===0){const bs=ntt;for(let i=0;i<ba;i++)pt(bs+i*(bd*4/ba),'a',i===0);for(let i=0;i<bb;i++)pt(bs+i*(bd*4/bb),'b',i===0)}
-      ntt+=td;state.barTick++
+      if(S.barTick%L===0){const bs=ntt;for(let i=0;i<ba;i++)pt(bs+i*(bd*4/ba),'a',i===0);for(let i=0;i<bb;i++)pt(bs+i*(bd*4/bb),'b',i===0)}
+      ntt+=td;S.barTick++
     }
   }catch(e){}
-  rv();tid=requestAnimationFrame(sl)
+  tid=requestAnimationFrame(sl)
 }
 
-function rv(){
-  if(!state.playing||!ac)return;
-  const el=ac.currentTime-pst;if(el<0)return;
-  const bd=gbd(),bar=bd*4,pos=el%bar;
-  const aI=Math.floor(pos/(bar/state.beatsA))%state.beatsA;
-  document.querySelectorAll('#dotsA .dot').forEach((d,i)=>d.classList.toggle('active',i===aI));
-  const bI=Math.floor(pos/(bar/state.beatsB))%state.beatsB;
-  document.querySelectorAll('#dotsB .dot').forEach((d,i)=>d.classList.toggle('active',i===bI));
-  document.getElementById('progressFill').style.width=(pos/bar*100)+'%';
-  document.getElementById('progressLabel').textContent='● '+Math.floor(aI+1)
+// ===== Canvas =====
+const canvas=document.getElementById('viz');
+const ctx=canvas.getContext('2d');
+let W,H;
+
+function resize(){
+  W=canvas.width=window.innerWidth;
+  H=canvas.height=window.innerHeight;
+}
+window.addEventListener('resize',resize);
+resize();
+
+function easeIn(t){return t*t} // acceleration: slow→fast
+function easeInStrong(t){return t*t*t}
+function getEase(t){return t*t} // default ease-in
+
+// Beat position on circle
+function beatPos(centerX,centerY,radius,divCount,beatIdx,phase){
+  // phase = 0..1 within the current beat
+  // Use easeIn to create acceleration feel
+  const anglePerBeat=(2*Math.PI)/divCount;
+  const e=phase<.001?0:easeIn(phase); // don't ease at exact 0
+  const angle=-Math.PI/2+beatIdx*anglePerBeat+e*anglePerBeat;
+  return {x:centerX+radius*Math.cos(angle),y:centerY+radius*Math.sin(angle)};
 }
 
-function rd(id,c){const el=document.getElementById(id);el.innerHTML='';const cls=id==='dotsA'?'t0':'t1';for(let i=0;i<c;i++){const d=document.createElement('div');d.className='dot '+cls+(i===0?' accent':'');el.appendChild(d)}}
+function drawViz(){
+  ctx.clearRect(0,0,W,H);
+  
+  const cx=W/2,cy=H/2;
+  const maxR=Math.min(W,H)*.35;
+  const rA=maxR*.65,rB=maxR*.95;
+  const ba=S.beatsA,bb=S.beatsB;
+  
+  // Get current audio position
+  let barPos=0,totalA=0,totalB=0;
+  if(S.playing&&ac){
+    const el=ac.currentTime-pst;
+    if(el>0){
+      const bd=gbd(),bar=bd*4;
+      barPos=el%bar;
+      totalA=el%bar;
+      totalB=el%bar;
+    }
+  }
+  
+  const aDur=gbd()*4/ba;
+  const bDur=gbd()*4/bb;
+  const aIdx=Math.floor(barPos/aDur)%ba;
+  const bIdx=Math.floor(barPos/bDur)%bb;
+  const aPhase=(barPos%aDur)/aDur;
+  const bPhase=(barPos%bDur)/bDur;
+  
+  // Draw track B (outer) circle and dots
+  ctx.beginPath();
+  ctx.arc(cx,cy,rB,0,2*Math.PI);
+  ctx.strokeStyle='rgba(106,176,200,.15)';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+  
+  for(let i=0;i<bb;i++){
+    const angle=-Math.PI/2+i*(2*Math.PI/bb);
+    const x=cx+rB*Math.cos(angle);
+    const y=cy+rB*Math.sin(angle);
+    ctx.beginPath();ctx.arc(x,y,i===bIdx?4:3,0,2*Math.PI);
+    ctx.fillStyle=i===bIdx?'rgba(106,176,200,.4)':'rgba(106,176,200,.15)';
+    ctx.fill();
+    if(i===0){
+      ctx.beginPath();ctx.arc(x,y,5,0,2*Math.PI);
+      ctx.fillStyle='rgba(106,176,200,.6)';ctx.fill();
+    }
+  }
+  
+  // Draw track B cursor with easeIn
+  const bEased=bPhase<.001?0:easeIn(bPhase);
+  const bAngle=-Math.PI/2+bIdx*(2*Math.PI/bb)+bEased*(2*Math.PI/bb);
+  const bx=cx+rB*Math.cos(bAngle),by=cy+rB*Math.sin(bAngle);
+  
+  // Cursor glow
+  const gradB=ctx.createRadialGradient(bx,by,0,bx,by,12);
+  gradB.addColorStop(0,'rgba(106,176,200,.9)');
+  gradB.addColorStop(.5,'rgba(106,176,200,.3)');
+  gradB.addColorStop(1,'rgba(106,176,200,0)');
+  ctx.beginPath();ctx.arc(bx,by,12,0,2*Math.PI);ctx.fillStyle=gradB;ctx.fill();
+  
+  ctx.beginPath();ctx.arc(bx,by,5,0,2*Math.PI);
+  ctx.fillStyle='#6ab0c8';ctx.fill();
+  
+  // Draw track A (inner) circle and dots
+  ctx.beginPath();
+  ctx.arc(cx,cy,rA,0,2*Math.PI);
+  ctx.strokeStyle='rgba(255,138,106,.15)';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+  
+  for(let i=0;i<ba;i++){
+    const angle=-Math.PI/2+i*(2*Math.PI/ba);
+    const x=cx+rA*Math.cos(angle);
+    const y=cy+rA*Math.sin(angle);
+    ctx.beginPath();ctx.arc(x,y,i===aIdx?4:3,0,2*Math.PI);
+    ctx.fillStyle=i===aIdx?'rgba(255,138,106,.4)':'rgba(255,138,106,.15)';
+    ctx.fill();
+    if(i===0){
+      ctx.beginPath();ctx.arc(x,y,6,0,2*Math.PI);
+      ctx.fillStyle='rgba(255,138,106,.6)';ctx.fill();
+    }
+  }
+  
+  // Draw track A cursor with easeIn
+  const aEased=aPhase<.001?0:easeIn(aPhase);
+  const aAngle=-Math.PI/2+aIdx*(2*Math.PI/ba)+aEased*(2*Math.PI/ba);
+  const ax=cx+rA*Math.cos(aAngle),ay=cy+rA*Math.sin(aAngle);
+  
+  const gradA=ctx.createRadialGradient(ax,ay,0,ax,ay,16);
+  gradA.addColorStop(0,'rgba(255,138,106,1)');
+  gradA.addColorStop(.4,'rgba(255,138,106,.5)');
+  gradA.addColorStop(1,'rgba(255,138,106,0)');
+  ctx.beginPath();ctx.arc(ax,ay,16,0,2*Math.PI);ctx.fillStyle=gradA;ctx.fill();
+  
+  ctx.beginPath();ctx.arc(ax,ay,6,0,2*Math.PI);
+  ctx.fillStyle='#ff8a6a';ctx.fill();
+  
+  // Center label
+  ctx.fillStyle='#3a3028';ctx.font='700 14px -apple-system,sans-serif';ctx.textAlign='center';
+  ctx.fillText(S.beatsA+':'+S.beatsB,cx,cy+4);
+  
+  if(!S.playing){
+    ctx.fillStyle='rgba(255,138,106,.3)';
+    ctx.font='500 14px -apple-system,sans-serif';
+    ctx.fillText('▶ 点击开始',cx,cy+40);
+  }
+  
+  requestAnimationFrame(drawViz);
+}
 
+// ===== Controls =====
 function start(){
   ia();if(ac.state==='suspended')ac.resume()
-  state.playing=true;state.barTick=0;ntt=ac.currentTime+.05;pst=ac.currentTime+.05
-  ac.onstatechange=function(){if(ac.state==='suspended'&&state.playing)ac.resume()}
-  document.getElementById('playBtn').textContent='■ 停';document.getElementById('playBtn').className='play-btn stop'
+  S.playing=true;S.barTick=0;ntt=ac.currentTime+.05;pst=ac.currentTime+.05
+  ac.onstatechange=function(){if(ac.state==='suspended'&&S.playing)ac.resume()}
+  document.getElementById('playBtn').textContent='■';document.getElementById('playBtn').className='play-btn stop'
   sl()
 }
 function stop(){
-  state.playing=false;if(tid){cancelAnimationFrame(tid);tid=null}
-  state.barTick=0;document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'))
-  document.getElementById('progressFill').style.width='0%';document.getElementById('progressLabel').textContent='● 0'
-  document.getElementById('playBtn').textContent='▶ 开始';document.getElementById('playBtn').className='play-btn start'
+  S.playing=false;if(tid){cancelAnimationFrame(tid);tid=null}
+  S.barTick=0;document.getElementById('playBtn').textContent='▶';document.getElementById('playBtn').className='play-btn start'
 }
-function toggle(){state.playing?stop():start()}
-function bpm(v){state.bpm=Math.max(30,Math.min(300,v));document.getElementById('bpmDisplay').textContent=state.bpm}
-function cb(tr,d){
-  if(state.playing)stop()
-  const k=tr==='a'?'beatsA':'beatsB';let v=state[k]+d;if(v<2)v=2;if(v>16)v=16;state[k]=v;
-  document.getElementById(k).textContent=v;
-  document.getElementById('modeLabel').textContent=state.beatsA+':'+state.beatsB
-  rd('dotsA',state.beatsA);rd('dotsB',state.beatsB)
-  document.getElementById('badgeLcm').textContent='LCM: '+lcm(state.beatsA,state.beatsB)
-  document.getElementById('badgeType').textContent=state.beatsA===state.beatsB?'直拍':'复合'
+function toggle(){S.playing?stop():start()}
+function setBpm(v){S.bpm=Math.max(30,Math.min(300,v));document.getElementById('bpmDisplay').textContent=S.bpm;updateLabel()}
+
+function updateLabel(){
+  document.getElementById('vizLabel').innerHTML=S.beatsA+' : '+S.beatsB+'<span style="color:#5a5048"> · </span>'+S.bpm+' bpm';
+  document.getElementById('tagA').textContent='A · '+S.beatsA;
+  document.getElementById('tagB').textContent='B · '+S.beatsB;
 }
 
-function sp(k){
-  if(state.playing)stop();state.preset=k
-  document.querySelectorAll('.preset-item').forEach(e=>e.classList.toggle('active',e.dataset.preset===k))
-  document.getElementById('presetLabel').textContent=PRESETS[k].name
+function chBeats(tr,d){
+  if(S.playing)stop()
+  const k=tr==='a'?'beatsA':'beatsB';let v=S[k]+d;if(v<2)v=2;if(v>16)v=16;S[k]=v;
+  document.getElementById('popA').textContent=S.beatsA;
+  document.getElementById('popB').textContent=S.beatsB;
+  updateLabel()
 }
 
-async function rec(t){
-  if(state.recording)return;
-  try{
-    const s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false}})
-    const c=[],r=new MediaRecorder(s,{mimeType:'audio/webm;codecs=opus'})
-    r.ondataavailable=e=>{if(e.data.size>0)c.push(e.data)}
-    r.onstop=()=>{const fr=new FileReader();fr.onloadend=()=>{ac.decodeAudioData(fr.result,b=>{const sr=b.sampleRate,len=Math.min(Math.floor(sr*.3),b.length),tb=ac.createBuffer(1,len,sr);const src=b.getChannelData(0),dst=tb.getChannelData(0);for(let i=0;i<len;i++)dst[i]=src[i];state.sampler[t]=tb;document.getElementById(t==='a'?'samplerA':'samplerB').textContent='✓ '+t;document.getElementById(t==='a'?'samplerA':'samplerB').classList.add('done');s.getTracks().forEach(t=>t.stop())},()=>{})};fr.readAsArrayBuffer(new Blob(c,{type:'audio/webm'}))}
-    state.recording=t;r.start();setTimeout(()=>{if(state.recording===t){r.stop();state.recording=null}},1200)
-  }catch(e){}
-}
-
+// ===== UI =====
 function init(){
-  document.getElementById('bpmUp').addEventListener('click',()=>bpm(state.bpm+5))
-  document.getElementById('bpmDown').addEventListener('click',()=>bpm(state.bpm-5))
+  document.getElementById('bpmUp').addEventListener('click',()=>setBpm(S.bpm+5))
+  document.getElementById('bpmDown').addEventListener('click',()=>setBpm(S.bpm-5))
   document.getElementById('playBtn').addEventListener('click',toggle)
-  document.getElementById('swingSlider').addEventListener('input',function(){state.swingRatio=parseFloat(this.value);document.getElementById('swingDisplay').textContent=this.value})
-  document.querySelectorAll('.stepper').forEach(b=>b.addEventListener('click',()=>cb(b.dataset.track,parseInt(b.dataset.dir))))
-  document.getElementById('gearBtn').addEventListener('click',()=>document.getElementById('settingsPanel').classList.toggle('open'))
-  const g=document.getElementById('presetGrid')
-  PKEYS.forEach(k=>{const p=PRESETS[k],e=document.createElement('div');e.className='preset-item'+(k===state.preset?' active':'');e.dataset.preset=k;e.innerHTML='<span class="icon">'+p.icon+'</span>'+p.name;e.addEventListener('click',()=>sp(k));g.appendChild(e)})
-  document.getElementById('samplerA').addEventListener('click',()=>rec('a'))
-  document.getElementById('samplerB').addEventListener('click',()=>rec('b'))
-  document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();toggle()}if(e.key==='ArrowUp')bpm(state.bpm+5);if(e.key==='ArrowDown')bpm(state.bpm-5)})
+  
+  // Tap on track tags to open popup
+  document.querySelectorAll('.tag').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.getElementById('popup').classList.toggle('open');
+      document.getElementById('popA').textContent=S.beatsA;
+      document.getElementById('popB').textContent=S.beatsB;
+    })
+  })
+  
+  document.querySelectorAll('.popup-stepper .btn').forEach(b=>{
+    b.addEventListener('click',()=>chBeats(b.dataset.t,b.dataset.d?parseInt(b.dataset.d):(b.textContent==='+'?1:-1)))
+  })
+  
+  // Fullscreen
+  document.getElementById('fsBtn').addEventListener('click',()=>{
+    if(!document.fullscreenElement){
+      document.querySelector('.controls').classList.add('hidden');
+      document.getElementById('fsBtn').textContent='⛶';
+      document.documentElement.requestFullscreen?.()
+    }else{
+      document.exitFullscreen?.()
+    }
+  })
+  
+  document.addEventListener('fullscreenchange',()=>{
+    if(!document.fullscreenElement){
+      document.querySelector('.controls').classList.remove('hidden');
+    }
+  })
+  
+  // Mode toggle (placeholder for multiple viz modes)
+  document.getElementById('modeToggleBtn').addEventListener('click',()=>{
+    // Cycle: circle → radar → timeline → circle
+    const modes=['circle','radar','timeline'];
+    const idx=modes.indexOf(S.mode);
+    S.mode=modes[(idx+1)%3];
+    document.getElementById('modeToggleBtn').textContent=
+      S.mode==='circle'?'◉ 同心圆':S.mode==='radar'?'◎ 雷达':'▤ 时间轴';
+  })
+  
+  // Keyboard
+  document.addEventListener('keydown',e=>{
+    if(e.code==='Space'){e.preventDefault();toggle()}
+    if(e.key==='ArrowUp')setBpm(S.bpm+5);
+    if(e.key==='ArrowDown')setBpm(S.bpm-5);
+  })
   document.addEventListener('click',()=>{if(!ac)ia()},{once:true})
-  bpm(80);cb('a',0)
+  
+  setBpm(80);updateLabel();
+  resize();drawViz();
 }
 init()
 })();
