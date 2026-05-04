@@ -5,956 +5,649 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>节奏训练器 · 越雨</title>
 <style>
-  :root {
-    --bg: #0f0f14;
-    --surface: #1a1a24;
-    --card: #222233;
-    --accent-q: #4a7cff;
-    --accent-p3: #ff6b4a;
-    --accent-slider: #c47aff;
-    --text: #e8e8f0;
-    --text-dim: #8888aa;
-    --red: #e44;
-  }
+:root {
+  --bg: #0f0f14; --surface: #1a1a24; --card: #222233;
+  --accent-q: #4a7cff; --accent-p3: #ff6b4a;
+  --accent-slider: #c47aff; --accent-gear: #666688;
+  --text: #e8e8f0; --text-dim: #8888aa; --red: #e44;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100dvh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:16px;user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent
+}
+.app{
+  width:100%;max-width:420px;background:var(--surface);
+  border-radius:32px;padding:28px 24px 32px;
+  box-shadow:0 8px 40px rgba(0,0,0,.5);position:relative
+}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.logo{font-size:14px;color:var(--text-dim);letter-spacing:2px}
+.logo span{color:var(--accent-q)}
+.gear{
+  width:36px;height:36px;border-radius:50%;border:2px solid #2a2a3a;
+  background:var(--card);color:var(--accent-gear);font-size:18px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s
+}
+.gear.active{background:rgba(102,102,136,.2);border-color:var(--accent-gear);transform:rotate(60deg)}
 
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
+/* Settings panel */
+.panel{
+  overflow:hidden;max-height:0;opacity:0;
+  transition:max-height .3s ease,opacity .3s ease,margin .3s ease;
+  margin-bottom:0
+}
+.panel.open{max-height:500px;opacity:1;margin-bottom:16px}
+.panel-inner{
+  background:var(--card);border-radius:20px;padding:16px
+}
+.panel-tabs{display:flex;gap:4px;margin-bottom:12px}
+.panel-tab{
+  flex:1;padding:8px;border:1px solid #2a2a3a;border-radius:8px;
+  background:transparent;color:var(--text-dim);font-size:12px;
+  font-weight:600;cursor:pointer;text-align:center;transition:all .2s
+}
+.panel-tab.active{background:rgba(74,124,255,.15);border-color:var(--accent-q);color:var(--accent-q)}
+.panel-body{min-height:100px}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.preset-item{
+  padding:8px;border:1px solid #2a2a3a;border-radius:10px;
+  background:transparent;color:var(--text-dim);font-size:12px;
+  cursor:pointer;transition:all .2s;text-align:center
+}
+.preset-item:active{transform:scale(.95)}
+.preset-item .icon{font-size:20px;display:block;margin-bottom:2px}
+.preset-item.active{border-color:var(--accent-q);background:rgba(74,124,255,.12);color:var(--accent-q)}
 
-  .app {
-    width: 100%;
-    max-width: 420px;
-    background: var(--surface);
-    border-radius: 32px;
-    padding: 28px 24px 32px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
-  }
+/* Sampler */
+.sample-section{font-size:13px}
+.sample-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0}
+.sample-row+.sample-row{border-top:1px solid #2a2a3a}
+.sample-label{color:var(--text-dim)}
+.sample-actions{display:flex;gap:6px}
+.sample-btn{
+  padding:4px 12px;border:1px solid #2a2a3a;border-radius:6px;
+  background:transparent;color:var(--text-dim);font-size:11px;
+  cursor:pointer;transition:all .2s;font-weight:600
+}
+.sample-btn:active{transform:scale(.95)}
+.sample-btn.rec{background:rgba(255,68,68,.15);border-color:var(--red);color:var(--red)}
+.sample-btn.rec.active{animation:blink .5s infinite}
+.sample-btn.play{background:rgba(74,124,255,.1);border-color:var(--accent-q);color:var(--accent-q)}
+.sample-btn.done{background:rgba(68,170,238,.1);border-color:#4ae;color:#4ae}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.sample-status{font-size:10px;color:var(--text-dim);text-align:center;padding:4px 0}
 
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  .logo { font-size: 14px; color: var(--text-dim); letter-spacing: 2px; }
-  .logo span { color: var(--accent-q); }
+/* BPM */
+.bpm-section{text-align:center;margin-bottom:16px}
+.bpm-display{font-size:64px;font-weight:700;line-height:1;color:var(--text);letter-spacing:-2px}
+.bpm-display .unit{font-size:20px;font-weight:400;color:var(--text-dim)}
+.bpm-controls{display:flex;justify-content:center;gap:24px;margin-top:8px}
+.bpm-btn{
+  width:48px;height:48px;border-radius:50%;border:2px solid var(--card);
+  background:var(--card);color:var(--text);font-size:24px;font-weight:300;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s
+}
+.bpm-btn:active{background:var(--accent-q);border-color:var(--accent-q)}
 
-  /* BPM */
-  .bpm-section {
-    text-align: center;
-    margin-bottom: 16px;
-  }
-  .bpm-display {
-    font-size: 64px;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--text);
-    letter-spacing: -2px;
-  }
-  .bpm-display .unit { font-size: 20px; font-weight: 400; color: var(--text-dim); }
-  .bpm-controls {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    margin-top: 8px;
-  }
-  .bpm-btn {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    border: 2px solid var(--card);
-    background: var(--card);
-    color: var(--text);
-    font-size: 24px;
-    font-weight: 300;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-  }
-  .bpm-btn:active { background: var(--accent-q); border-color: var(--accent-q); }
+/* Sliders */
+.slider-section{margin-bottom:16px;padding:12px 8px 14px;background:var(--card);border-radius:16px}
+.slider-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 4px}
+.slider-label{font-size:12px;color:var(--text-dim)}
+.slider-val{font-size:20px;font-weight:700;color:var(--accent-slider);font-variant-numeric:tabular-nums}
+.slider-val .pct{font-size:12px;font-weight:400;color:var(--text-dim)}
+.slider-track{position:relative;height:36px;display:flex;align-items:center;margin:0 4px}
+.slider-bg{width:100%;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--accent-q),#8888bb,var(--accent-slider));position:relative}
+.slider-bg::before,.slider-bg::after{position:absolute;top:-14px;font-size:10px;color:var(--text-dim);opacity:.4}
+.slider-bg::before{content:'直拍';left:0}
+.slider-bg::after{content:'Shuffle';right:0}
+.slider-ticks{position:absolute;top:-2px;left:0;right:0;height:10px;display:flex;justify-content:space-between;pointer-events:none}
+.slider-tick{width:2px;height:6px;background:rgba(255,255,255,.15);border-radius:1px}
+.swing-slider{-webkit-appearance:none;appearance:none;position:absolute;top:0;left:0;width:100%;height:100%;background:transparent;cursor:pointer;z-index:2;margin:0}
+.swing-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--accent-slider);box-shadow:0 0 16px rgba(196,122,255,.4);border:3px solid #fff;cursor:pointer}
+.swing-slider::-webkit-slider-thumb:active{transform:scale(1.2)}
+.swing-slider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--accent-slider);border:3px solid #fff;cursor:pointer}
 
-  /* Swing slider */
-  .slider-section {
-    margin-bottom: 16px;
-    padding: 12px 8px 14px;
-    background: var(--card);
-    border-radius: 16px;
-  }
-  .slider-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    padding: 0 4px;
-  }
-  .slider-label {
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-  .slider-val {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--accent-slider);
-    font-variant-numeric: tabular-nums;
-  }
-  .slider-val .pct { font-size: 12px; font-weight: 400; color: var(--text-dim); }
+/* Mode toggle */
+.mode-row{display:flex;gap:8px;margin-bottom:16px}
+.mode-btn{
+  flex:1;padding:10px;border:2px solid #2a2a3a;border-radius:12px;
+  background:var(--card);color:var(--text-dim);font-size:13px;
+  font-weight:600;cursor:pointer;text-align:center;transition:all .2s;letter-spacing:1px
+}
+.mode-btn:active{transform:scale(.95)}
+.mode-btn .sub{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:.5}
+.mode-btn.active{border-color:var(--accent-p3);background:rgba(255,107,74,.15);color:var(--accent-p3)}
 
-  .slider-track {
-    position: relative;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    margin: 0 4px;
-  }
-  .slider-bg {
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, var(--accent-q), #8888bb, var(--accent-slider));
-    position: relative;
-  }
-  .slider-bg::before, .slider-bg::after {
-    position: absolute;
-    top: -14px;
-    font-size: 10px;
-    color: var(--text-dim);
-    opacity: 0.4;
-  }
-  .slider-bg::before { content: '直拍'; left: 0; }
-  .slider-bg::after { content: 'Shuffle'; right: 0; }
+/* Beat area */
+.beat-area{background:var(--card);border-radius:20px;padding:20px 16px;margin-bottom:16px;min-height:100px;position:relative;overflow:hidden}
+.track{display:flex;align-items:center;gap:8px}
+.track-label{font-size:12px;color:var(--text-dim);width:24px;flex-shrink:0;text-align:right;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:6px;flex:1;justify-content:center;padding:4px 0}
+.dot-q{width:32px;height:32px;border-radius:50%;background:#2a2a3a;transition:all .06s ease;flex-shrink:0}
+.dot-q.active{background:var(--accent-q);box-shadow:0 0 18px rgba(74,124,255,.4);transform:scale(1.15)}
+.dot-q.accent{background:#1e2a50}
+.dot-q.accent.active{background:#6a9aff;box-shadow:0 0 26px rgba(74,124,255,.5);transform:scale(1.3)}
+.sub-label{text-align:center;font-size:10px;color:var(--text-dim);margin-bottom:6px;opacity:.6}
+.swing-vis{display:flex;align-items:center;justify-content:center;gap:3px;padding:6px 0;height:36px}
+.swing-bar{width:14px;border-radius:3px;background:#2a2a3a;transition:all .08s}
+.swing-bar.long{height:26px}
+.swing-bar.long.active{background:var(--accent-q)}
+.swing-bar.short{height:14px}
+.swing-bar.short.active{background:var(--accent-slider)}
+.track-3{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #2a2a3a}
+.dot-p3{width:32px;height:32px;border-radius:50%;background:#2a1a1a;transition:all .06s ease;flex-shrink:0}
+.dot-p3.active{background:var(--accent-p3);box-shadow:0 0 18px rgba(255,107,74,.4);transform:scale(1.15)}
+.dot-p3.accent{background:#3a1e1a}
+.dot-p3.accent.active{background:#ff8a6a;box-shadow:0 0 26px rgba(255,107,74,.5);transform:scale(1.3)}
+.progress-bar{width:100%;height:3px;background:#2a2a3a;border-radius:2px;overflow:hidden;margin-top:10px}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent-q),var(--accent-p3));border-radius:2px;transition:width .05s linear}
 
-  /* tick marks */
-  .slider-ticks {
-    position: absolute;
-    top: -2px;
-    left: 0;
-    right: 0;
-    height: 10px;
-    display: flex;
-    justify-content: space-between;
-    pointer-events: none;
-  }
-  .slider-tick {
-    width: 2px;
-    height: 6px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 1px;
-  }
-  .slider-tick.labeled { position: relative; }
-  .slider-tick.labeled::after {
-    content: attr(data-label);
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 8px;
-    color: var(--text-dim);
-    white-space: nowrap;
-    opacity: 0.5;
-  }
+/* Play */
+.play-btn{width:100%;padding:16px;border:none;border-radius:16px;font-size:18px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:all .15s;margin-bottom:12px}
+.play-btn.start{background:var(--accent-q);color:#fff}
+.play-btn.start:active{background:#3a6aee}
+.play-btn.stop{background:var(--red);color:#fff}
+.play-btn.stop:active{background:#c33}
 
-  /* custom range input */
-  .swing-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    cursor: pointer;
-    z-index: 2;
-    margin: 0;
-  }
-  .swing-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--accent-slider);
-    box-shadow: 0 0 16px rgba(196,122,255,0.4);
-    border: 3px solid #fff;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
-  .swing-slider::-webkit-slider-thumb:active {
-    transform: scale(1.2);
-  }
-  .swing-slider::-moz-range-thumb {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--accent-slider);
-    border: 3px solid #fff;
-    cursor: pointer;
-  }
+/* Info */
+.info{display:flex;justify-content:center;gap:16px;font-size:12px;color:var(--text-dim);flex-wrap:wrap}
+.info .note{display:flex;align-items:center;gap:5px}
 
-  /* Mode toggle */
-  .mode-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .mode-btn {
-    flex: 1;
-    padding: 10px;
-    border: 2px solid #2a2a3a;
-    border-radius: 12px;
-    background: var(--card);
-    color: var(--text-dim);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
-    letter-spacing: 1px;
-  }
-  .mode-btn:active { transform: scale(0.95); }
-  .mode-btn .sub {
-    display: block;
-    font-size: 10px;
-    font-weight: 400;
-    margin-top: 2px;
-    opacity: 0.5;
-  }
-  .mode-btn.active {
-    border-color: var(--accent-p3);
-    background: rgba(255,107,74,0.15);
-    color: var(--accent-p3);
-  }
-
-  /* Beat area */
-  .beat-area {
-    background: var(--card);
-    border-radius: 20px;
-    padding: 20px 16px;
-    margin-bottom: 16px;
-    min-height: 100px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .track {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .track-label {
-    font-size: 12px;
-    color: var(--text-dim);
-    width: 24px;
-    flex-shrink: 0;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-  .dots {
-    display: flex;
-    gap: 6px;
-    flex: 1;
-    justify-content: center;
-    padding: 4px 0;
-  }
-  .dot-q {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: #2a2a3a;
-    transition: all 0.06s ease;
-    flex-shrink: 0;
-  }
-  .dot-q.active {
-    background: var(--accent-q);
-    box-shadow: 0 0 18px rgba(74,124,255,0.4);
-    transform: scale(1.15);
-  }
-  .dot-q.accent { background: #1e2a50; }
-  .dot-q.accent.active {
-    background: #6a9aff;
-    box-shadow: 0 0 26px rgba(74,124,255,0.5);
-    transform: scale(1.3);
-  }
-
-  .sub-label {
-    text-align: center;
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-bottom: 6px;
-    opacity: 0.6;
-  }
-
-  /* Swing visual bars */
-  .swing-vis {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    padding: 6px 0;
-    height: 36px;
-  }
-  .swing-bar {
-    width: 14px;
-    border-radius: 3px;
-    background: #2a2a3a;
-    transition: all 0.08s;
-  }
-  .swing-bar.long { height: 26px; }
-  .swing-bar.long.active { background: var(--accent-q); }
-  .swing-bar.short { height: 14px; }
-  .swing-bar.short.active { background: var(--accent-slider); }
-
-  /* 3/4 track */
-  .track-3 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #2a2a3a;
-  }
-  .dot-p3 {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: #2a1a1a;
-    transition: all 0.06s ease;
-    flex-shrink: 0;
-  }
-  .dot-p3.active {
-    background: var(--accent-p3);
-    box-shadow: 0 0 18px rgba(255,107,74,0.4);
-    transform: scale(1.15);
-  }
-  .dot-p3.accent { background: #3a1e1a; }
-  .dot-p3.accent.active {
-    background: #ff8a6a;
-    box-shadow: 0 0 26px rgba(255,107,74,0.5);
-    transform: scale(1.3);
-  }
-
-  /* Progress */
-  .progress-bar {
-    width: 100%;
-    height: 3px;
-    background: #2a2a3a;
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 10px;
-  }
-  .progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--accent-q), var(--accent-p3));
-    border-radius: 2px;
-    transition: width 0.05s linear;
-  }
-
-  /* Play */
-  .play-btn {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 16px;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.15s;
-    margin-bottom: 12px;
-  }
-  .play-btn.start { background: var(--accent-q); color: #fff; }
-  .play-btn.start:active { background: #3a6aee; }
-  .play-btn.stop { background: var(--red); color: #fff; }
-  .play-btn.stop:active { background: #c33; }
-
-  /* Info */
-  .info {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    font-size: 12px;
-    color: var(--text-dim);
-    flex-wrap: wrap;
-  }
-  .info .note { display: flex; align-items: center; gap: 5px; }
-
-  @media (max-width: 400px) {
-    .app { padding: 20px 16px 24px; }
-    .bpm-display { font-size: 48px; }
-    .dot-q, .dot-p3 { width: 26px; height: 26px; }
-    .dots { gap: 4px; }
-  }
+@media(max-width:400px){
+  .app{padding:20px 16px 24px}
+  .bpm-display{font-size:48px}
+  .dot-q,.dot-p3{width:26px;height:26px}
+  .dots{gap:4px}
+}
 </style>
 </head>
 <body>
 <div class="app">
+  <!-- Header -->
   <div class="header">
     <div class="logo"><span>◈</span> 节奏训练器</div>
-    <div class="logo" style="font-size:11px;letter-spacing:1px;">v0.3</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="presetBadge" style="font-size:11px;color:var(--accent-gear);letter-spacing:1px;">Analog</span>
+      <div class="gear" id="gearBtn">⚙</div>
+    </div>
+  </div>
+
+  <!-- Settings panel -->
+  <div class="panel" id="settingsPanel">
+    <div class="panel-inner">
+      <div class="panel-tabs">
+        <div class="panel-tab active" data-tab="synth">合成器</div>
+        <div class="panel-tab" data-tab="sampler">采样器</div>
+      </div>
+      <div class="panel-body" id="panelSynth">
+        <div class="preset-grid" id="presetGrid"></div>
+      </div>
+      <div class="panel-body" id="panelSampler" style="display:none">
+        <div class="sample-section">
+          <div class="sample-row"><span class="sample-label">主拍 ♩</span>
+            <div class="sample-actions">
+              <button class="sample-btn rec" data-target="kick">● 录制</button>
+              <button class="sample-btn play" data-target="kick">▶</button>
+            </div>
+          </div>
+          <div class="sample-row"><span class="sample-label">弱拍 ♪</span>
+            <div class="sample-actions">
+              <button class="sample-btn rec" data-target="sub">● 录制</button>
+              <button class="sample-btn play" data-target="sub">▶</button>
+            </div>
+          </div>
+          <div class="sample-row"><span class="sample-label">副拍 ⊞</span>
+            <div class="sample-actions">
+              <button class="sample-btn rec" data-target="poly">● 录制</button>
+              <button class="sample-btn play" data-target="poly">▶</button>
+            </div>
+          </div>
+          <div class="sample-status" id="sampleStatus">点击录制，然后敲一下/拍一下麦克风</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- BPM -->
   <div class="bpm-section">
-    <div class="bpm-display" id="bpmDisplay">120 <span class="unit">BPM</span></div>
+    <div class="bpm-display" id="bpmDisplay">80 <span class="unit">BPM</span></div>
     <div class="bpm-controls">
       <button class="bpm-btn" id="bpmDown">−</button>
       <button class="bpm-btn" id="bpmUp">+</button>
     </div>
   </div>
 
-  <!-- Swing slider: 直拍 ←→ Shuffle -->
+  <!-- Swing slider -->
   <div class="slider-section">
     <div class="slider-header">
       <span class="slider-label">偏移量</span>
       <span class="slider-val" id="swingDisplay">50<span class="pct">%</span></span>
     </div>
     <div class="slider-track">
-      <div class="slider-bg">
-        <div class="slider-ticks">
-          <div class="slider-tick"></div>
-          <div class="slider-tick"></div>
-          <div class="slider-tick"></div>
-          <div class="slider-tick"></div>
-          <div class="slider-tick"></div>
-          <div class="slider-tick"></div>
-          <div class="slider-tick"></div>
-          <div class="slider-tick"></div>
-          <div class="slider-tick"></div>
-        </div>
-      </div>
-      <input type="range" class="swing-slider" id="swingSlider"
-             min="50" max="75" value="50" step="0.5">
+      <div class="slider-bg"><div class="slider-ticks" id="sliderTicks"></div></div>
+      <input type="range" class="swing-slider" id="swingSlider" min="50" max="75" value="50" step="0.5">
     </div>
   </div>
 
-  <!-- 三套四 toggle -->
+  <!-- Poly toggle -->
   <div class="mode-row">
-    <button class="mode-btn" id="polyBtn">
-      ⊞ 三套四
-      <span class="sub">4/4 + 3/4</span>
-    </button>
+    <button class="mode-btn" id="polyBtn">⊞ 三套四<span class="sub">4/4 + 3/4</span></button>
   </div>
 
   <!-- Volume -->
-  <div class="slider-section" style="padding:8px 8px 6px;margin-bottom:12px;">
-    <div class="slider-header" style="margin-bottom:2px;">
+  <div class="slider-section" style="padding:8px 8px 6px;margin-bottom:12px">
+    <div class="slider-header" style="margin-bottom:2px">
       <span class="slider-label">音量</span>
-      <span class="slider-val" style="font-size:14px;font-weight:600;" id="volDisplay">80<span class="pct">%</span></span>
+      <span class="slider-val" style="font-size:14px;font-weight:600" id="volDisplay">80<span class="pct">%</span></span>
     </div>
-    <div class="slider-track" style="height:28px;">
-      <div class="slider-bg" style="height:4px;background:linear-gradient(90deg,#445,#888);"></div>
-      <input type="range" class="swing-slider" id="volSlider"
-             min="0" max="100" value="80" step="1">
+    <div class="slider-track" style="height:28px">
+      <div class="slider-bg" style="height:4px;background:linear-gradient(90deg,#445,#888)"></div>
+      <input type="range" class="swing-slider" id="volSlider" min="0" max="100" value="80" step="1">
     </div>
   </div>
 
-  <!-- Beat visualization -->
-  <div class="beat-area" id="beatArea">
+  <!-- Beat area -->
+  <div class="beat-area">
     <div class="sub-label" id="beatLabel">四分音符 · 4 beats</div>
-
-    <!-- 4/4 track -->
     <div class="track">
       <div class="track-label">♩</div>
       <div class="dots" id="trackQ">
-        <div class="dot-q accent" data-idx="0"></div>
-        <div class="dot-q" data-idx="1"></div>
-        <div class="dot-q" data-idx="2"></div>
-        <div class="dot-q" data-idx="3"></div>
+        <div class="dot-q accent"></div><div class="dot-q"></div><div class="dot-q"></div><div class="dot-q"></div>
       </div>
     </div>
-
-    <!-- Swing subdivision bars -->
     <div id="subdivArea">
-      <div class="track" style="margin-top:4px;">
-        <div class="track-label" style="font-size:10px;">♪</div>
+      <div class="track" style="margin-top:4px">
+        <div class="track-label" style="font-size:10px">♪</div>
         <div class="swing-vis" id="swingVis">
-          <div class="swing-bar long" data-idx="0"></div>
-          <div class="swing-bar short" data-idx="1"></div>
-          <div class="swing-bar long" data-idx="2"></div>
-          <div class="swing-bar short" data-idx="3"></div>
-          <div class="swing-bar long" data-idx="4"></div>
-          <div class="swing-bar short" data-idx="5"></div>
-          <div class="swing-bar long" data-idx="6"></div>
-          <div class="swing-bar short" data-idx="7"></div>
+          <div class="swing-bar long"></div><div class="swing-bar short"></div>
+          <div class="swing-bar long"></div><div class="swing-bar short"></div>
+          <div class="swing-bar long"></div><div class="swing-bar short"></div>
+          <div class="swing-bar long"></div><div class="swing-bar short"></div>
         </div>
       </div>
     </div>
-
-    <!-- 3/4 track -->
-    <div class="track-3" id="polyTrack" style="display:none;">
-      <div class="track-label" style="color:var(--accent-p3);">3/4</div>
-      <div class="dots">
-        <div class="dot-p3 accent" data-idx="0"></div>
-        <div class="dot-p3" data-idx="1"></div>
-        <div class="dot-p3" data-idx="2"></div>
-      </div>
+    <div class="track-3" id="polyTrack" style="display:none">
+      <div class="track-label" style="color:var(--accent-p3)">3/4</div>
+      <div class="dots"><div class="dot-p3 accent"></div><div class="dot-p3"></div><div class="dot-p3"></div></div>
     </div>
-
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
-  <!-- Play -->
   <button class="play-btn start" id="playBtn">▶ 开始</button>
 
   <div class="info">
     <span class="note" style="color:var(--accent-q)">♩ 强拍</span>
     <span class="note" style="color:var(--accent-slider)">♪ 弱拍</span>
-    <span class="note" id="infoPoly" style="display:none;color:var(--accent-p3);">⊞ 3/4</span>
+    <span class="note" id="infoPoly" style="display:none;color:var(--accent-p3)">⊞ 3/4</span>
   </div>
 </div>
 
 <script>
 (function(){
-  'use strict';
+'use strict';
 
-  const state = {
-    bpm: 120,
-    playing: false,
-    swingRatio: 50,   // 50-75%, controls 8th note offset
-    polyOn: false,    // 3:4 polyrhythm toggle
-    volume: 0.8,      // master volume 0-1
-    barTick: 0,
-  };
+// ======================== PRESETS ========================
+const PRESETS = {
+  analog:  { name:'模拟 Analog',  icon:'◈', kick:'analog',  sub:'click', poly:'bell' },
+  '808':   { name:'808 深低音',   icon:'◉', kick:'808',     sub:'click', poly:'bell' },
+  elec:    { name:'电子 Elec',    icon:'◇', kick:'elec',    sub:'click', poly:'bell' },
+  clap:    { name:'拍手 Clap',    icon:'👏', kick:'noise',   sub:'click', poly:'bell' },
+  wood:    { name:'木鱼 Wood',    icon:'▣', kick:'wood',    sub:'click', poly:'bell' },
+  noise:   { name:'噪音 Snare',   icon:'⚡', kick:'snare',   sub:'tick',  poly:'tick' },
+};
+const PRESET_KEYS = Object.keys(PRESETS);
 
-  let audioCtx = null;
-  let masterGain = null;
-  let nextTickTime = 0;
-  let timerId = null;
+// ======================== STATE ========================
+const state = {
+  bpm:80, playing:false, swingRatio:50, polyOn:false,
+  volume:.8, barTick:0, preset:'analog',
+  sampler:{ kick:null, sub:null, poly:null },
+  recording:null, // 'kick'|'sub'|'poly'|null
+  mediaRecorder:null,
+};
 
-  // --- Pre-created FX chain (Serum-style) ---
-  let fxChain = null;  // { compressor, convolver, distCurve }
+let audioCtx=null, masterGain=null, nextTickTime=0, timerId=null;
+let fxChain=null;
 
-  // Soft-clip waveshaping curve
-  function makeDistCurve(amount) {
-    const n = 256;
-    const curve = new Float32Array(n);
-    for (let i = 0; i < n; i++) {
-      const x = (i / n) * 2 - 1;
-      const k = amount;
-      curve[i] = ((Math.PI + k) * x) / (Math.PI + k * Math.abs(x));
-    }
-    return curve;
+// ======================== AUDIO HELPERS ========================
+function makeDistCurve(a){const n=256,c=new Float32Array(n);for(let i=0;i<n;i++){const x=i/n*2-1;k=a;c[i]=((Math.PI+k)*x)/(Math.PI+k*Math.abs(x))}return c}
+function makeReverbIR(ctx,dur,decay){const sr=ctx.sampleRate,len=Math.floor(sr*dur),buf=ctx.createBuffer(2,len,sr);for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay)}return buf}
+function makeNoiseBuf(ctx,dur){const sr=ctx.sampleRate,len=Math.floor(sr*dur),buf=ctx.createBuffer(1,len,sr),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;return buf}
+
+function initAudio(){
+  if(audioCtx)return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  masterGain=audioCtx.createGain();masterGain.gain.setValueAtTime(state.volume,audioCtx.currentTime);masterGain.connect(audioCtx.destination);
+  fxChain={};
+  const comp=audioCtx.createDynamicsCompressor();comp.threshold.setValueAtTime(-18,audioCtx.currentTime);comp.knee.setValueAtTime(6,audioCtx.currentTime);comp.ratio.setValueAtTime(3,audioCtx.currentTime);comp.attack.setValueAtTime(.002,audioCtx.currentTime);comp.release.setValueAtTime(.08,audioCtx.currentTime);comp.connect(masterGain);fxChain.compressor=comp;
+  const ir=makeReverbIR(audioCtx,.12,3),conv=audioCtx.createConvolver();conv.buffer=ir;
+  const rs=audioCtx.createGain();rs.gain.setValueAtTime(.3,audioCtx.currentTime);
+  const ro=audioCtx.createGain();ro.gain.setValueAtTime(.4,audioCtx.currentTime);
+  rs.connect(conv);conv.connect(ro);ro.connect(masterGain);
+  fxChain.reverbSend=rs;fxChain.reverbOut=ro;
+  const dc=makeDistCurve(15);fxChain.distCurve=dc;
+  const nb=makeNoiseBuf(audioCtx,.3);fxChain.noiseBuf=nb;
+}
+
+// ======================== PRESET-BASED SOUND ENGINE ========================
+function playKick(time,accent){
+  const p=state.preset;
+  // Check sampler first
+  if(state.sampler.kick){playSample(time,state.sampler.kick,accent?.6:.4);return}
+  if(p==='analog'){analogKick(time,accent?180:140,accent?.18:.13,accent?.6:.4,accent);return}
+  if(p==='808'){sineKick(time,accent?60:50,accent?.35:.3,accent?.6:.4);return}
+  if(p==='elec'){elecKick(time,accent?120:100,accent?.1:.08,accent?.5:.3);return}
+  if(p==='noise'){noiseKick(time,accent?.12:.08,accent?.5:.3,true);return}
+  if(p==='clap'){noiseKick(time,accent?.1:.08,accent?.4:.25,false);return}
+  if(p==='wood'){woodKick(time,accent?2500:2000,accent?.03:.02,accent?.5:.3);return}
+  analogKick(time,140,.15,.4,accent);
+}
+function playSub(time,isLong){
+  if(state.sampler.sub){playSample(time,state.sampler.sub,isLong?.15:.1);return}
+  const p=state.preset;
+  if(p==='analog')clickTone(time,isLong?520:380,isLong?.15:.1,.2)
+  else if(p==='808')clickTone(time,isLong?280:220,isLong?.12:.08,0)
+  else if(p==='elec')clickTone(time,isLong?600:450,isLong?.1:.06,0)
+  else if(p==='clap')tinyNoise(time,isLong?.06:.04,isLong?.12:.08)
+  else if(p==='wood')clickTone(time,isLong?3500:2800,isLong?.1:.07,0)
+  else if(p==='noise')clickTone(time,isLong?900:700,isLong?.08:.05,0)
+  else clickTone(time,isLong?520:380,.15,.2)
+}
+function playPoly3(time,accent){
+  if(state.sampler.poly){playSample(time,state.sampler.poly,accent?.3:.2);return}
+  const p=state.preset;
+  if(p==='analog')bellTone(time,accent?1100:800,accent?.25:.15,.3)
+  else if(p==='808')bellTone(time,accent?550:440,accent?.2:.12,.05)
+  else if(p==='elec')bellTone(time,accent?950:750,accent?.18:.1,0)
+  else if(p==='clap')tinyNoise(time,accent?.08:.06,accent?.2:.12)
+  else if(p==='wood')clickTone(time,accent?4000:3200,accent?.15:.1,0)
+  else if(p==='noise')clickTone(time,accent?1200:900,accent?.1:.06,0)
+  else bellTone(time,1100,.25,.3)
+}
+
+// --- Sound generators ---
+function analogKick(t,freq,dur,level,accent){
+  if(!audioCtx||!fxChain)return;
+  const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(3000,t);f.frequency.exponentialRampToValueAtTime(60,t+dur);f.Q.setValueAtTime(.7,t);
+  const sat=audioCtx.createWaveShaper();sat.curve=fxChain.distCurve;
+  const dry=audioCtx.createGain();dry.gain.setValueAtTime(level,t);
+  const rev=audioCtx.createGain();rev.gain.setValueAtTime(level*.25,t);
+  const sum=audioCtx.createGain();sum.gain.setValueAtTime(1,t);
+  const voices=accent?[
+    {type:'triangle',det:0,g:.5},{type:'square',det:0,g:.25},
+    {type:'triangle',det:3,g:.15},{type:'square',det:-2,g:.1},{type:'triangle',det:-4,g:.08}
+  ]:[
+    {type:'triangle',det:0,g:.45},{type:'square',det:0,g:.2},
+    {type:'triangle',det:2.5,g:.12},{type:'square',det:-2,g:.08}
+  ];
+  for(const v of voices){
+    const o=audioCtx.createOscillator();o.type=v.type;
+    o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(50,t+dur*.8);
+    o.detune.setValueAtTime(v.det,t);const g=audioCtx.createGain();g.gain.setValueAtTime(v.g,t);
+    o.connect(g);g.connect(sum);o.start(t);o.stop(t+dur+.02)
   }
+  sum.connect(f);f.connect(sat);sat.connect(dry);dry.connect(fxChain.compressor);
+  sat.connect(rev);rev.connect(fxChain.reverbSend);
+}
 
-  // Synthesize reverb impulse response (small room)
-  function makeReverbIR(audioCtx, dur, decay) {
-    const sr = audioCtx.sampleRate;
-    const len = Math.floor(sr * dur);
-    const buf = audioCtx.createBuffer(2, len, sr);
-    for (let ch = 0; ch < 2; ch++) {
-      const d = buf.getChannelData(ch);
-      for (let i = 0; i < len; i++) {
-        // stereo spread with slightly different noise
-        const noise = (Math.random() * 2 - 1);
-        d[i] = noise * Math.pow(1 - i / len, decay);
+function sineKick(t,freq,dur,level){
+  if(!audioCtx)return;
+  const o=audioCtx.createOscillator();o.type='sine';o.frequency.setValueAtTime(freq,t);
+  const g=audioCtx.createGain();g.gain.setValueAtTime(level,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g);g.connect(fxChain.compressor);o.start(t);o.stop(t+dur)
+}
+
+function elecKick(t,freq,dur,level){
+  if(!audioCtx)return;
+  const o=audioCtx.createOscillator();o.type='square';o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(40,t+dur*.7);
+  const g=audioCtx.createGain();g.gain.setValueAtTime(level,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g);g.connect(fxChain.compressor);o.start(t);o.stop(t+dur)
+}
+
+function noiseKick(t,dur,level,bpf){
+  if(!audioCtx||!fxChain)return;
+  const src=audioCtx.createBufferSource();src.buffer=fxChain.noiseBuf;
+  const g=audioCtx.createGain();g.gain.setValueAtTime(level,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  if(bpf){const f=audioCtx.createBiquadFilter();f.type='bandpass';f.frequency.setValueAtTime(2000,t);f.Q.setValueAtTime(2,t);src.connect(f);f.connect(g)}
+  else src.connect(g);
+  g.connect(fxChain.compressor);src.start(t);src.stop(t+dur)
+}
+
+function woodKick(t,freq,dur,level){
+  if(!audioCtx)return;
+  const o=audioCtx.createOscillator();o.type='triangle';o.frequency.setValueAtTime(freq,t);
+  const g=audioCtx.createGain();g.gain.setValueAtTime(level,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g);g.connect(fxChain.compressor);o.start(t);o.stop(t+dur)
+}
+
+function clickTone(t,freq,level,revAmt){
+  if(!audioCtx||!fxChain)return;
+  const o=audioCtx.createOscillator();o.type='triangle';o.frequency.setValueAtTime(freq,t);
+  const g=audioCtx.createGain();g.gain.setValueAtTime(level,t);g.gain.exponentialRampToValueAtTime(.001,t+.04);
+  const sat=audioCtx.createWaveShaper();sat.curve=fxChain.distCurve;
+  const dry=audioCtx.createGain();dry.gain.setValueAtTime(1,t);
+  o.connect(g);g.connect(sat);sat.connect(dry);dry.connect(fxChain.compressor);
+  if(revAmt>0){const r=audioCtx.createGain();r.gain.setValueAtTime(revAmt,t);sat.connect(r);r.connect(fxChain.reverbSend)}
+  o.start(t);o.stop(t+.05)
+}
+
+function bellTone(t,freq,level,revAmt){
+  if(!audioCtx||!fxChain)return;
+  const o=audioCtx.createOscillator();o.type='triangle';o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*.7,t+.04);
+  const g=audioCtx.createGain();g.gain.setValueAtTime(level,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);
+  const sat=audioCtx.createWaveShaper();sat.curve=fxChain.distCurve;
+  o.connect(g);g.connect(sat);sat.connect(fxChain.compressor);
+  if(revAmt>0){const r=audioCtx.createGain();r.gain.setValueAtTime(revAmt,t);sat.connect(r);r.connect(fxChain.reverbSend)}
+  o.start(t);o.stop(t+.06)
+}
+
+function tinyNoise(t,dur,level){
+  if(!audioCtx||!fxChain)return;
+  const src=audioCtx.createBufferSource();src.buffer=fxChain.noiseBuf;
+  const g=audioCtx.createGain();g.gain.setValueAtTime(level,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  src.connect(g);g.connect(fxChain.compressor);src.start(t);src.stop(t+dur)
+}
+
+function playSample(t,buf,level){
+  if(!audioCtx||!buf)return;
+  const src=audioCtx.createBufferSource();src.buffer=buf;
+  const g=audioCtx.createGain();g.gain.setValueAtTime(level,t);
+  src.connect(g);g.connect(fxChain.compressor);src.start(t)
+}
+
+// ======================== SCHEDULER ========================
+function getBeatDur(){return 60/state.bpm}
+function getRatio(){return state.swingRatio/100}
+
+function scheduleLoop(){
+  if(!state.playing)return;
+  try{
+    const now=audioCtx.currentTime;
+    if(nextTickTime<now)nextTickTime=now;
+    const beatDur=getBeatDur(),ratio=getRatio();
+    const ld=beatDur*ratio,sd=beatDur*(1-ratio);
+    const td=[ld,sd,ld,sd,ld,sd,ld,sd];
+    while(nextTickTime<now+.15){
+      const tick=state.barTick%8;
+      if(tick===0){
+        for(let b=0;b<4;b++){playKick(nextTickTime+b*beatDur,b===0)}
+        let st=nextTickTime;
+        for(let i=0;i<8;i++){playSub(st,i%2===0);st+=i%2===0?ld:sd}
+        if(state.polyOn){const p3=beatDur*4/3;for(let i=0;i<3;i++)playPoly3(nextTickTime+i*p3,i===0)}
       }
+      nextTickTime+=td[tick];state.barTick++
     }
-    return buf;
-  }
+    updateVisuals()
+  }catch(e){console.warn(e)}
+  timerId=requestAnimationFrame(scheduleLoop)
+}
 
-  function initAudio() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(state.volume, audioCtx.currentTime);
-      masterGain.connect(audioCtx.destination);
+// ======================== VISUALS ========================
+function updateVisuals(){
+  const tick=state.barTick%8,qIdx=Math.floor(tick/2);
+  document.querySelectorAll('.dot-q').forEach((d,i)=>d.classList.toggle('active',i===qIdx));
+  document.querySelectorAll('.swing-bar').forEach((b,i)=>b.classList.toggle('active',i===tick));
+  if(state.polyOn){const p=Math.floor(state.barTick/4)%3;document.querySelectorAll('.dot-p3').forEach((d,i)=>d.classList.toggle('active',i===p))}
+  document.getElementById('progressFill').style.width=(tick/8*100)+'%'
+}
 
-      // --- Build Serum-style shared FX chain ---
-      fxChain = {};
+// ======================== UI CONTROLS ========================
+function start(){
+  initAudio();if(audioCtx.state==='suspended')audioCtx.resume()
+  state.playing=true;state.barTick=0;nextTickTime=audioCtx.currentTime+.05
+  updateVisuals()
+  document.getElementById('playBtn').textContent='■ 停止';document.getElementById('playBtn').className='play-btn stop'
+  scheduleLoop()
+}
+function stop(){
+  state.playing=false;if(timerId){cancelAnimationFrame(timerId);timerId=null}
+  state.barTick=0
+  document.querySelectorAll('.dot-q,.swing-bar,.dot-p3').forEach(d=>d.classList.remove('active'))
+  document.getElementById('progressFill').style.width='0%'
+  document.getElementById('playBtn').textContent='▶ 开始';document.getElementById('playBtn').className='play-btn start'
+}
+function togglePlay(){state.playing?stop():start()}
+function setBpm(v){state.bpm=Math.max(30,Math.min(300,v));document.getElementById('bpmDisplay').innerHTML=state.bpm+' <span class="unit">BPM</span>'}
 
-      // 1. Compression: glue it together
-      const comp = audioCtx.createDynamicsCompressor();
-      comp.threshold.setValueAtTime(-18, audioCtx.currentTime);
-      comp.knee.setValueAtTime(6, audioCtx.currentTime);
-      comp.ratio.setValueAtTime(3, audioCtx.currentTime);
-      comp.attack.setValueAtTime(0.002, audioCtx.currentTime);
-      comp.release.setValueAtTime(0.08, audioCtx.currentTime);
+function updateSwingLabel(){
+  const r=state.swingRatio,el=document.getElementById('swingDisplay');el.innerHTML=r+'<span class="pct">%</span>'
+  const lb=document.getElementById('beatLabel')
+  if(r<=52)lb.textContent='直拍 · 均匀 8 分'
+  else if(r<58)lb.textContent='轻 Swing · '+r+'%'
+  else if(r<64)lb.textContent='Swing · '+r+'%'
+  else if(r<68)lb.textContent='重 Swing · '+r+'%'
+  else lb.textContent='Shuffle · '+r+'%'
+}
 
-      // 2. Reverb: short room plate using convolution
-      const reverbIR = makeReverbIR(audioCtx, 0.12, 3);
-      const conv = audioCtx.createConvolver();
-      conv.buffer = reverbIR;
-      const reverbSend = audioCtx.createGain();
-      reverbSend.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      const reverbOut = audioCtx.createGain();
-      reverbOut.gain.setValueAtTime(0.4, audioCtx.currentTime);
+function togglePoly(){
+  if(state.playing)stop();state.polyOn=!state.polyOn
+  document.getElementById('polyBtn').classList.toggle('active',state.polyOn)
+  document.getElementById('polyTrack').style.display=state.polyOn?'flex':'none'
+  document.getElementById('infoPoly').style.display=state.polyOn?'inline':'none'
+}
 
-      // 3. Distortion curve (pre-calculated)
-      const distCurve = makeDistCurve(15);
+function setPreset(key){
+  if(state.playing)stop()
+  state.preset=key
+  document.querySelectorAll('.preset-item').forEach(el=>el.classList.toggle('active',el.dataset.preset===key))
+  document.getElementById('presetBadge').textContent=PRESETS[key].name
+  // Update info bar color
+  const note=document.querySelector('.info .note:first-child')
+  if(key==='808')note.style.setProperty('color','#ff6b4a')
+  else if(key==='elec')note.style.setProperty('color','#4ae')
+  else note.style.setProperty('color','var(--accent-q)')
+}
 
-      // Wire: dry → comp → master
-      //       dry → distCurve + reverbSend → conv → master
-      comp.connect(masterGain);
-
-      fxChain.compressor = comp;
-      fxChain.convolver = conv;
-      fxChain.reverbSend = reverbSend;
-      fxChain.reverbOut = reverbOut;
-      fxChain.distCurve = distCurve;
-
-      // Connect reverb chain permanently
-      reverbSend.connect(conv);
-      conv.connect(reverbOut);
-      reverbOut.connect(masterGain);
+// ======================== SAMPLER ========================
+async function startRecording(target){
+  if(state.recording)return
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false}})
+    const chunks=[],rec=new MediaRecorder(stream,{mimeType:'audio/webm;codecs=opus'})
+    rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data)}
+    rec.onstop=()=>{
+      const blob=new Blob(chunks,{type:'audio/webm'})
+      const reader=new FileReader()
+      reader.onloadend=()=>{
+        audioCtx.decodeAudioData(reader.result,(buf)=>{
+          // Trim to first ~300ms
+          const sr=buf.sampleRate,len=Math.min(Math.floor(sr*.3),buf.length)
+          const trimmed=audioCtx.createBuffer(1,len,sr)
+          const src=buf.getChannelData(0),dst=trimmed.getChannelData(0)
+          for(let i=0;i<len;i++)dst[i]=src[i]
+          state.sampler[target]=trimmed
+          const btn=document.querySelector(`.sample-btn.play[data-target="${target}"]`)
+          btn.classList.add('done');btn.textContent='✔'
+          setStatus('已录制 '+target.toUpperCase())
+          stream.getTracks().forEach(t=>t.stop())
+        },()=>setStatus('解码失败，请重试'))
+      };reader.readAsArrayBuffer(blob)
     }
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-  }
+    state.recording=target
+    rec.start()
+    const btn=document.querySelector(`.sample-btn.rec[data-target="${target}"]`)
+    btn.classList.add('active');btn.textContent='● 录音中'
+    setStatus('录制中... 敲一下麦克风后自动停止')
+    // Auto-stop after 1 second
+    setTimeout(()=>{if(state.recording===target){rec.stop();state.recording=null;btn.classList.remove('active');btn.textContent='● 录制'}},1000)
+  }catch(e){setStatus('麦克风权限被拒');state.recording=null}
+}
 
-  // --- Kick: Triangle + Square, unison, filter sweep, dist, comp, reverb ---
-  function playKick(time, accent) {
-    if (!audioCtx || !fxChain) return;
+function playSamplePreview(target){
+  const buf=state.sampler[target]
+  if(!buf){setStatus('还没录 '+target.toUpperCase());return}
+  initAudio();if(audioCtx.state==='suspended')audioCtx.resume()
+  playSample(audioCtx.currentTime+.05,buf,.6)
+}
 
-    const baseFreq = accent ? 180 : 140;
-    const dur = accent ? 0.18 : 0.13;
-    const level = accent ? 0.6 : 0.4;
+function setStatus(msg){document.getElementById('sampleStatus').textContent=msg}
 
-    // Shared filter for this kick
-    const filter = audioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(3000, time);
-    filter.frequency.exponentialRampToValueAtTime(60, time + dur);
-    filter.Q.setValueAtTime(0.7, time);
-
-    // Distortion (unique per kick to avoid cross-talk)
-    const saturate = audioCtx.createWaveShaper();
-    saturate.curve = fxChain.distCurve;
-
-    // Dry send to compressor
-    const dryGain = audioCtx.createGain();
-    dryGain.gain.setValueAtTime(level, time);
-
-    // Reverb send
-    const revSend = audioCtx.createGain();
-    revSend.gain.setValueAtTime(level * 0.25, time);
-
-    // Sum bus for unison voices
-    const sum = audioCtx.createGain();
-    sum.gain.setValueAtTime(1, time);
-
-    // --- Unison voice configs ---
-    // Triangle: body, Square: attack snap
-    const voices = accent ? [
-      { type: 'triangle', detune: 0,   gain: 0.50 },
-      { type: 'square',   detune: 0,   gain: 0.25 },
-      { type: 'triangle', detune: 3,   gain: 0.15 },
-      { type: 'square',   detune: -2,  gain: 0.10 },
-      { type: 'triangle', detune: -4,  gain: 0.08 },
-    ] : [
-      { type: 'triangle', detune: 0,   gain: 0.45 },
-      { type: 'square',   detune: 0,   gain: 0.20 },
-      { type: 'triangle', detune: 2.5, gain: 0.12 },
-      { type: 'square',   detune: -2,  gain: 0.08 },
-    ];
-
-    for (const v of voices) {
-      const osc = audioCtx.createOscillator();
-      osc.type = v.type;
-      osc.frequency.setValueAtTime(baseFreq, time);
-      osc.frequency.exponentialRampToValueAtTime(50, time + dur * 0.8);
-      osc.detune.setValueAtTime(v.detune, time);
-
-      const g = audioCtx.createGain();
-      g.gain.setValueAtTime(v.gain, time);
-
-      osc.connect(g);
-      g.connect(sum);
-
-      osc.start(time);
-      osc.stop(time + dur + 0.02);
-    }
-
-    // Route: sum → filter → saturate → (dry + rev) → comp/conv → master
-    sum.connect(filter);
-    filter.connect(saturate);
-    saturate.connect(dryGain);
-    dryGain.connect(fxChain.compressor);
-
-    saturate.connect(revSend);
-    revSend.connect(fxChain.reverbSend);
-  }
-
-  // --- Sub click (8th notes): simpler, just triangle with dist + reverb ---
-  function playSub(time, isLong) {
-    if (!audioCtx || !fxChain) return;
-
-    const freq = isLong ? 480 : 350;
-    const level = isLong ? 0.15 : 0.10;
-
-    const osc = audioCtx.createOscillator();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, time);
-
-    const g = audioCtx.createGain();
-    g.gain.setValueAtTime(level, time);
-    g.gain.exponentialRampToValueAtTime(0.001, time + 0.035 + (isLong ? 0.01 : 0));
-
-    // Light saturation
-    const sat = audioCtx.createWaveShaper();
-    sat.curve = fxChain.distCurve;
-
-    // Dry
-    const dry = audioCtx.createGain();
-    dry.gain.setValueAtTime(0.7, time);
-
-    // Reverb send
-    const rev = audioCtx.createGain();
-    rev.gain.setValueAtTime(0.2, time);
-
-    osc.connect(g);
-    g.connect(sat);
-    sat.connect(dry);
-    dry.connect(fxChain.compressor);
-
-    sat.connect(rev);
-    rev.connect(fxChain.reverbSend);
-
-    osc.start(time);
-    osc.stop(time + 0.05);
-  }
-
-  // --- 3/4 voice: more present, bell-like with FM character ---
-  function playPoly3(time, accent) {
-    if (!audioCtx || !fxChain) return;
-
-    const freq = accent ? 1100 : 800;
-    const level = accent ? 0.25 : 0.15;
-
-    // Dual-oscillator FM-ish: triangle sub + sine body
-    const osc = audioCtx.createOscillator();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, time);
-
-    const g = audioCtx.createGain();
-    g.gain.setValueAtTime(level, time);
-    g.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
-
-    const sat = audioCtx.createWaveShaper();
-    sat.curve = fxChain.distCurve;
-
-    const rev = audioCtx.createGain();
-    rev.gain.setValueAtTime(0.3, time);
-
-    osc.connect(g);
-    g.connect(sat);
-    sat.connect(fxChain.compressor);
-
-    sat.connect(rev);
-    rev.connect(fxChain.reverbSend);
-
-    osc.start(time);
-    osc.stop(time + 0.06);
-  }
-
-  // --- Scheduling ---
-  function getBeatDur() { return 60 / state.bpm; }
-
-  function getRatio() { return state.swingRatio / 100; }
-
-  function scheduleLoop() {
-    if (!state.playing) return;
-    try {
-      const now = audioCtx.currentTime;
-      if (nextTickTime < now) nextTickTime = now;
-
-      const beatDur = getBeatDur();
-      const ratio = getRatio();
-      const swingTickDur = beatDur * ratio;      // duration of "long" 8th
-      const swingTickDur2 = beatDur * (1 - ratio); // duration of "short" 8th
-      // In swing/shuffle feel, we use 8 ticks per bar (2 per beat)
-      const tickDurs = [];
-      for (let b = 0; b < 4; b++) {
-        tickDurs.push(swingTickDur);   // long 8th
-        tickDurs.push(swingTickDur2);  // short 8th
-      }
-
-      while (nextTickTime < now + 0.15) {
-        const tick = state.barTick % 8;
-        const beatIdx = Math.floor(tick / 2);
-        const subIdx = tick % 2;
-
-        // Schedule a full bar when reaching tick 0
-        if (tick === 0) {
-          // Play 4 quarter-note kicks
-          let t = nextTickTime;
-          for (let b = 0; b < 4; b++) {
-            playKick(t, b === 0);
-            if (b < 3) {
-              // Duration to next beat: sum of two sub-ticks
-              const toNext = beatDur;
-              t += toNext;
-            }
-          }
-
-          // Play subdivision clicks
-          let subT = nextTickTime;
-          for (let i = 0; i < 8; i++) {
-            const isLong = i % 2 === 0;
-            playSub(subT, isLong);
-            subT += (i % 2 === 0) ? swingTickDur : swingTickDur2;
-          }
-
-          // 三套四: overlay 3/4
-          if (state.polyOn) {
-            const p3dur = beatDur * 4/3;
-            for (let i = 0; i < 3; i++) {
-              playPoly3(nextTickTime + i * p3dur, i === 0);
-            }
-          }
-        }
-
-        // Advance by this tick's duration
-        nextTickTime += tickDurs[tick];
-        state.barTick++;
-      }
-
-      updateVisuals();
-
-    } catch(e) {
-      console.warn('scheduler err:', e);
-    }
-    timerId = requestAnimationFrame(scheduleLoop);
-  }
-
-  // --- Visuals ---
-  function updateVisuals() {
-    const tick = state.barTick % 8;
-    const qIdx = Math.floor(tick / 2);
-    const subIdx = tick % 2;
-
-    // Quarter note dots
-    document.querySelectorAll('.dot-q').forEach((d, i) => {
-      d.classList.toggle('active', i === qIdx);
-    });
-
-    // Swing bars
-    document.querySelectorAll('.swing-bar').forEach((bar, i) => {
-      bar.classList.toggle('active', i === tick);
-    });
-
-    // Poly dots
-    if (state.polyOn) {
-      const p3Idx = Math.floor(state.barTick / 4) % 3;
-      document.querySelectorAll('.dot-p3').forEach((d, i) => {
-        d.classList.toggle('active', i === p3Idx);
-      });
-    }
-
-    // Progress
-    const prog = (tick / 8) * 100;
-    document.getElementById('progressFill').style.width = prog + '%';
-  }
-
-  // --- UI ---
-  function start() {
-    initAudio();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    state.playing = true;
-    state.barTick = 0;
-    nextTickTime = audioCtx.currentTime + 0.05;
-    updateVisuals();
-    document.getElementById('playBtn').textContent = '■ 停止';
-    document.getElementById('playBtn').className = 'play-btn stop';
-    scheduleLoop();
-  }
-
-  function stop() {
-    state.playing = false;
-    if (timerId) { cancelAnimationFrame(timerId); timerId = null; }
-    state.barTick = 0;
-    document.querySelectorAll('.dot-q').forEach(d => d.classList.remove('active'));
-    document.querySelectorAll('.swing-bar').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.dot-p3').forEach(d => d.classList.remove('active'));
-    document.getElementById('progressFill').style.width = '0%';
-    document.getElementById('playBtn').textContent = '▶ 开始';
-    document.getElementById('playBtn').className = 'play-btn start';
-  }
-
-  function togglePlay() {
-    state.playing ? stop() : start();
-  }
-
-  function setBpm(val) {
-    state.bpm = Math.max(30, Math.min(300, val));
-    document.getElementById('bpmDisplay').innerHTML = state.bpm + ' <span class="unit">BPM</span>';
-  }
-
-  // Update visual label to show what the current ratio sounds like
-  function updateSwingLabel() {
-    const r = state.swingRatio;
-    const display = document.getElementById('swingDisplay');
-    display.innerHTML = r + '<span class="pct">%</span>';
-
-    const label = document.getElementById('beatLabel');
-    if (r <= 52) label.textContent = '直拍 · 均匀 8 分音符';
-    else if (r < 58) label.textContent = '轻 Swing · ' + r + '%';
-    else if (r < 64) label.textContent = 'Swing · ' + r + '%';
-    else if (r < 68) label.textContent = '重 Swing · ' + r + '%';
-    else label.textContent = 'Shuffle · ' + r + '%';
-  }
-
-  function togglePoly() {
-    if (state.playing) stop();
-    state.polyOn = !state.polyOn;
-    document.getElementById('polyBtn').classList.toggle('active', state.polyOn);
-    document.getElementById('polyTrack').style.display = state.polyOn ? 'flex' : 'none';
-    document.getElementById('infoPoly').style.display = state.polyOn ? 'inline' : 'none';
-  }
-
-  // --- Init ---
-  function init() {
-    document.getElementById('bpmUp').addEventListener('click', () => setBpm(state.bpm + 5));
-    document.getElementById('bpmDown').addEventListener('click', () => setBpm(state.bpm - 5));
-    document.getElementById('playBtn').addEventListener('click', togglePlay);
-    document.getElementById('polyBtn').addEventListener('click', togglePoly);
-
-    // Swing slider
-    const slider = document.getElementById('swingSlider');
-    slider.addEventListener('input', () => {
-      state.swingRatio = parseFloat(slider.value);
-      updateSwingLabel();
-    });
-
-    // Volume slider
-    const volSlider = document.getElementById('volSlider');
-    volSlider.addEventListener('input', () => {
-      state.volume = parseFloat(volSlider.value) / 100;
-      document.getElementById('volDisplay').innerHTML =
-        volSlider.value + '<span class="pct">%</span>';
-      if (masterGain) {
-        masterGain.gain.setValueAtTime(state.volume, audioCtx.currentTime);
-      }
-    });
-
-    // Keyboard
-    document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
-      if (e.key === 'ArrowUp') setBpm(state.bpm + 5);
-      if (e.key === 'ArrowDown') setBpm(state.bpm - 5);
-    });
-
-    // Init audio on first interaction
-    document.addEventListener('click', () => {
-      if (!audioCtx) initAudio();
-    }, { once: true });
-
-    setBpm(80);
-    updateSwingLabel();
-  }
-
-  init();
+// ======================== INIT ========================
+function init(){
+  // BPM
+  document.getElementById('bpmUp').addEventListener('click',()=>setBpm(state.bpm+5))
+  document.getElementById('bpmDown').addEventListener('click',()=>setBpm(state.bpm-5))
+  // Play
+  document.getElementById('playBtn').addEventListener('click',togglePlay)
+  // Poly
+  document.getElementById('polyBtn').addEventListener('click',togglePoly)
+  // Swing slider
+  const ss=document.getElementById('swingSlider');ss.addEventListener('input',()=>{state.swingRatio=parseFloat(ss.value);updateSwingLabel()})
+  // Volume slider
+  const vs=document.getElementById('volSlider');vs.addEventListener('input',()=>{
+    state.volume=parseFloat(vs.value)/100;document.getElementById('volDisplay').innerHTML=vs.value+'<span class="pct">%</span>'
+    if(masterGain)masterGain.gain.setValueAtTime(state.volume,audioCtx.currentTime)
+  })
+  // Gear
+  document.getElementById('gearBtn').addEventListener('click',()=>{
+    document.getElementById('gearBtn').classList.toggle('active')
+    document.getElementById('settingsPanel').classList.toggle('open')
+  })
+  // Panel tabs
+  document.querySelectorAll('.panel-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.panel-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active')
+      const isSynth=tab.dataset.tab==='synth'
+      document.getElementById('panelSynth').style.display=isSynth?'block':'none'
+      document.getElementById('panelSampler').style.display=isSynth?'none':'block'
+    })
+  })
+  // Build preset grid
+  const grid=document.getElementById('presetGrid')
+  PRESET_KEYS.forEach(key=>{
+    const p=PRESETS[key];const el=document.createElement('div')
+    el.className='preset-item'+(key===state.preset?' active':'')
+    el.dataset.preset=key;el.innerHTML='<span class="icon">'+p.icon+'</span>'+p.name
+    el.addEventListener('click',()=>setPreset(key))
+    grid.appendChild(el)
+  })
+  // Sampler buttons
+  document.querySelectorAll('.sample-btn.rec').forEach(btn=>{
+    btn.addEventListener('click',()=>startRecording(btn.dataset.target))
+  })
+  document.querySelectorAll('.sample-btn.play').forEach(btn=>{
+    btn.addEventListener('click',()=>playSamplePreview(btn.dataset.target))
+  })
+  // Keyboard
+  document.addEventListener('keydown',e=>{
+    if(e.code==='Space'){e.preventDefault();togglePlay()}
+    if(e.key==='ArrowUp')setBpm(state.bpm+5)
+    if(e.key==='ArrowDown')setBpm(state.bpm-5)
+  })
+  // Init audio on first click
+  document.addEventListener('click',()=>{if(!audioCtx)initAudio()},{once:true})
+  // Slider ticks
+  const ticks=document.getElementById('sliderTicks')
+  for(let i=0;i<9;i++){const t=document.createElement('div');t.className='slider-tick';ticks.appendChild(t)}
+  setBpm(80);updateSwingLabel()
+}
+init()
 })();
 </script>
 </body>
