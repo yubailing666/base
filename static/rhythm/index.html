@@ -524,6 +524,8 @@ function start(){
   state.playing=true;state.barTick=0;nextTickTime=audioCtx.currentTime+.05
   playbackStartTime=audioCtx.currentTime+.05
   updateVisualsAudioSync()
+  // Auto-resume AudioContext (mobile browsers suspend aggressively)
+  audioCtx.onstatechange=function(){if(audioCtx.state==='suspended'&&state.playing)audioCtx.resume()}
   document.getElementById('playBtn').textContent='■ 停止';document.getElementById('playBtn').className='play-btn stop'
   scheduleLoop()
 }
