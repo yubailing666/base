@@ -446,6 +446,19 @@
     </button>
   </div>
 
+  <!-- Volume -->
+  <div class="slider-section" style="padding:8px 8px 6px;margin-bottom:12px;">
+    <div class="slider-header" style="margin-bottom:2px;">
+      <span class="slider-label">音量</span>
+      <span class="slider-val" style="font-size:14px;font-weight:600;" id="volDisplay">80<span class="pct">%</span></span>
+    </div>
+    <div class="slider-track" style="height:28px;">
+      <div class="slider-bg" style="height:4px;background:linear-gradient(90deg,#445,#888);"></div>
+      <input type="range" class="swing-slider" id="volSlider"
+             min="0" max="100" value="80" step="1">
+    </div>
+  </div>
+
   <!-- Beat visualization -->
   <div class="beat-area" id="beatArea">
     <div class="sub-label" id="beatLabel">四分音符 · 4 beats</div>
@@ -512,21 +525,27 @@
     playing: false,
     swingRatio: 50,   // 50-75%, controls 8th note offset
     polyOn: false,    // 3:4 polyrhythm toggle
+    volume: 0.8,      // master volume 0-1
     barTick: 0,
   };
 
   let audioCtx = null;
+  let masterGain = null;
   let nextTickTime = 0;
   let timerId = null;
+
+  // --- Sounds ---
 
   function initAudio() {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(state.volume, audioCtx.currentTime);
+      masterGain.connect(audioCtx.destination);
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
   }
 
-  // --- Sounds ---
   function playKick(time, accent) {
     if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
@@ -534,12 +553,12 @@
     osc.type = 'sine';
     osc.frequency.setValueAtTime(accent ? 120 : 90, time);
     osc.frequency.exponentialRampToValueAtTime(50, time + 0.08);
-    gain.gain.setValueAtTime(accent ? 0.5 : 0.3, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + (accent ? 0.12 : 0.08));
+    gain.gain.setValueAtTime(accent ? 0.8 : 0.5, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + (accent ? 0.15 : 0.10));
     osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    gain.connect(masterGain);
     osc.start(time);
-    osc.stop(time + 0.12);
+    osc.stop(time + (accent ? 0.15 : 0.10));
   }
 
   function playSub(time, isLong) {
@@ -547,13 +566,13 @@
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(isLong ? 440 : 330, time);
-    gain.gain.setValueAtTime(isLong ? 0.10 : 0.07, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
+    osc.frequency.setValueAtTime(isLong ? 520 : 380, time);
+    gain.gain.setValueAtTime(isLong ? 0.20 : 0.14, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
     osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    gain.connect(masterGain);
     osc.start(time);
-    osc.stop(time + 0.03);
+    osc.stop(time + 0.04);
   }
 
   function playPoly3(time, accent) {
@@ -561,13 +580,13 @@
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(accent ? 880 : 660, time);
-    gain.gain.setValueAtTime(accent ? 0.2 : 0.12, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+    osc.frequency.setValueAtTime(accent ? 1000 : 750, time);
+    gain.gain.setValueAtTime(accent ? 0.35 : 0.20, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
     osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    gain.connect(masterGain);
     osc.start(time);
-    osc.stop(time + 0.04);
+    osc.stop(time + 0.05);
   }
 
   // --- Scheduling ---
@@ -737,6 +756,17 @@
     slider.addEventListener('input', () => {
       state.swingRatio = parseFloat(slider.value);
       updateSwingLabel();
+    });
+
+    // Volume slider
+    const volSlider = document.getElementById('volSlider');
+    volSlider.addEventListener('input', () => {
+      state.volume = parseFloat(volSlider.value) / 100;
+      document.getElementById('volDisplay').innerHTML =
+        volSlider.value + '<span class="pct">%</span>';
+      if (masterGain) {
+        masterGain.gain.setValueAtTime(state.volume, audioCtx.currentTime);
+      }
     });
 
     // Keyboard
