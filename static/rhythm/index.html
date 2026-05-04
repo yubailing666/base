@@ -464,6 +464,7 @@ function playSample(t,buf,level){
 // ======================== SCHEDULER ========================
 function getBeatDur(){return 60/state.bpm}
 function getRatio(){return state.swingRatio/100}
+let playbackStartTime=0;
 
 function scheduleLoop(){
   if(!state.playing)return;
@@ -483,25 +484,46 @@ function scheduleLoop(){
       }
       nextTickTime+=td[tick];state.barTick++
     }
-    updateVisuals()
   }catch(e){console.warn(e)}
+  // Visuals driven by audio clock, not barTick
+  updateVisualsAudioSync();
   timerId=requestAnimationFrame(scheduleLoop)
 }
 
-// ======================== VISUALS ========================
-function updateVisuals(){
-  const tick=state.barTick%8,qIdx=Math.floor(tick/2);
+// ======================== VISUALS (audio-clock-synced) ========================
+function updateVisualsAudioSync(){
+  if(!state.playing||!audioCtx)return;
+  const elapsed=audioCtx.currentTime-playbackStartTime;
+  if(elapsed<0)return;
+  const beatDur=getBeatDur();
+  const barDur=beatDur*4;
+  const barPos=elapsed%barDur;
+
+  // Map barPos (seconds) to tick index (0-7) with swing subdivisions
+  const ratio=getRatio();
+  const ld=beatDur*ratio,sd=beatDur*(1-ratio);
+  const tickDurs=[ld,sd,ld,sd,ld,sd,ld,sd];
+  let acc=0,tick=0;
+  for(let i=0;i<8;i++){if(barPos>=acc&&barPos<acc+tickDurs[i]){tick=i;break}acc+=tickDurs[i]}
+  if(barPos>=acc)tick=7;
+
+  const qIdx=Math.floor(tick/2);
   document.querySelectorAll('.dot-q').forEach((d,i)=>d.classList.toggle('active',i===qIdx));
   document.querySelectorAll('.swing-bar').forEach((b,i)=>b.classList.toggle('active',i===tick));
-  if(state.polyOn){const p=Math.floor(state.barTick/4)%3;document.querySelectorAll('.dot-p3').forEach((d,i)=>d.classList.toggle('active',i===p))}
-  document.getElementById('progressFill').style.width=(tick/8*100)+'%'
+  if(state.polyOn){
+    const p3=beatDur*4/3;
+    const p3Idx=Math.floor(elapsed%(p3*3)/p3)%3;
+    document.querySelectorAll('.dot-p3').forEach((d,i)=>d.classList.toggle('active',i===p3Idx))
+  }
+  document.getElementById('progressFill').style.width=(barPos/barDur*100)+'%'
 }
 
 // ======================== UI CONTROLS ========================
 function start(){
   initAudio();if(audioCtx.state==='suspended')audioCtx.resume()
   state.playing=true;state.barTick=0;nextTickTime=audioCtx.currentTime+.05
-  updateVisuals()
+  playbackStartTime=audioCtx.currentTime+.05
+  updateVisualsAudioSync()
   document.getElementById('playBtn').textContent='■ 停止';document.getElementById('playBtn').className='play-btn stop'
   scheduleLoop()
 }
