@@ -78,6 +78,12 @@ body{background:#1a1614;overflow:hidden;font-family:sans-serif}
     </div>
     <button id="btn" class="g">▶</button>
     <div class="bctrl">
+      <span class="lbl" style="color:#a0988a;font-size:9px">BPM</span>
+      <button class="b" id="bpmD">−</button>
+      <span class="n" id="bpmN" style="color:#ff8a6a">80</span>
+      <button class="b" id="bpmU">+</button>
+    </div>
+    <div class="bctrl">
       <span class="lbl b">B</span>
       <button class="b" data-t="b" data-d="-1">−</button>
       <span class="n" id="bB">4</span>
@@ -289,7 +295,7 @@ function stop(){
 }
 function toggle(){S.play?stop():start()}
 
-function setBpm(v){S.bpm=Math.max(30,Math.min(300,v));updInfo()}
+function setBpm(v){S.bpm=Math.max(30,Math.min(300,v));document.getElementById('bpmN').textContent=S.bpm;updInfo()
 function setBeats(tr,d){
   if(S.play)stop();
   S[tr==='a'?'ba':'bb']=Math.max(2,Math.min(16,S[tr==='a'?'ba':'bb']+d));
@@ -338,8 +344,9 @@ function init(){
     document.getElementById('btn').addEventListener('click',function(e){e.stopPropagation();toggle()});
     cv.addEventListener('click',toggle);
     
-    // BPM
-    document.getElementById('bar').addEventListener('click',function(e){if(e.target.matches('#btn'))return});
+    // BPM buttons
+    document.getElementById('bpmU').addEventListener('click',function(){setBpm(S.bpm+5)});
+    document.getElementById('bpmD').addEventListener('click',function(){setBpm(S.bpm-5)});
     
     // Track beats
     document.querySelectorAll('.b').forEach(function(el){
