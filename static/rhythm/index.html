@@ -9,13 +9,11 @@
     --bg: #0f0f14;
     --surface: #1a1a24;
     --card: #222233;
-    --accent-4: #4a7cff;
-    --accent-3: #ff6b4a;
-    --swing: #4ae;
-    --shuffle: #e4a;
+    --accent-q: #4a7cff;
+    --accent-p3: #ff6b4a;
+    --accent-slider: #c47aff;
     --text: #e8e8f0;
     --text-dim: #8888aa;
-    --green: #4ae;
     --red: #e44;
   }
 
@@ -51,7 +49,7 @@
     margin-bottom: 20px;
   }
   .logo { font-size: 14px; color: var(--text-dim); letter-spacing: 2px; }
-  .logo span { color: var(--accent-4); }
+  .logo span { color: var(--accent-q); }
 
   /* BPM */
   .bpm-section {
@@ -86,17 +84,134 @@
     justify-content: center;
     transition: all 0.15s;
   }
-  .bpm-btn:active { background: var(--accent-4); border-color: var(--accent-4); }
+  .bpm-btn:active { background: var(--accent-q); border-color: var(--accent-q); }
 
-  /* Mode selector */
-  .mode-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+  /* Swing slider */
+  .slider-section {
+    margin-bottom: 16px;
+    padding: 12px 8px 14px;
+    background: var(--card);
+    border-radius: 16px;
+  }
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 0 4px;
+  }
+  .slider-label {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .slider-val {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent-slider);
+    font-variant-numeric: tabular-nums;
+  }
+  .slider-val .pct { font-size: 12px; font-weight: 400; color: var(--text-dim); }
+
+  .slider-track {
+    position: relative;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    margin: 0 4px;
+  }
+  .slider-bg {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent-q), #8888bb, var(--accent-slider));
+    position: relative;
+  }
+  .slider-bg::before, .slider-bg::after {
+    position: absolute;
+    top: -14px;
+    font-size: 10px;
+    color: var(--text-dim);
+    opacity: 0.4;
+  }
+  .slider-bg::before { content: '直拍'; left: 0; }
+  .slider-bg::after { content: 'Shuffle'; right: 0; }
+
+  /* tick marks */
+  .slider-ticks {
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .slider-tick {
+    width: 2px;
+    height: 6px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 1px;
+  }
+  .slider-tick.labeled { position: relative; }
+  .slider-tick.labeled::after {
+    content: attr(data-label);
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    opacity: 0.5;
+  }
+
+  /* custom range input */
+  .swing-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    cursor: pointer;
+    z-index: 2;
+    margin: 0;
+  }
+  .swing-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent-slider);
+    box-shadow: 0 0 16px rgba(196,122,255,0.4);
+    border: 3px solid #fff;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .swing-slider::-webkit-slider-thumb:active {
+    transform: scale(1.2);
+  }
+  .swing-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent-slider);
+    border: 3px solid #fff;
+    cursor: pointer;
+  }
+
+  /* Mode toggle */
+  .mode-row {
+    display: flex;
     gap: 8px;
     margin-bottom: 16px;
   }
   .mode-btn {
-    padding: 10px 8px;
+    flex: 1;
+    padding: 10px;
     border: 2px solid #2a2a3a;
     border-radius: 12px;
     background: var(--card);
@@ -116,25 +231,10 @@
     margin-top: 2px;
     opacity: 0.5;
   }
-  .mode-btn.active-shuffle {
-    border-color: var(--shuffle);
-    background: rgba(238,68,170,0.15);
-    color: var(--shuffle);
-  }
-  .mode-btn.active-swing {
-    border-color: var(--swing);
-    background: rgba(68,170,238,0.15);
-    color: var(--swing);
-  }
-  .mode-btn.active-poly {
-    border-color: var(--accent-3);
+  .mode-btn.active {
+    border-color: var(--accent-p3);
     background: rgba(255,107,74,0.15);
-    color: var(--accent-3);
-  }
-  .mode-btn.active-straight {
-    border-color: var(--accent-4);
-    background: rgba(74,124,255,0.15);
-    color: var(--accent-4);
+    color: var(--accent-p3);
   }
 
   /* Beat area */
@@ -156,7 +256,7 @@
   .track-label {
     font-size: 12px;
     color: var(--text-dim);
-    width: 28px;
+    width: 24px;
     flex-shrink: 0;
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -168,39 +268,52 @@
     justify-content: center;
     padding: 4px 0;
   }
-  .dot {
+  .dot-q {
     width: 32px; height: 32px;
     border-radius: 50%;
+    background: #2a2a3a;
     transition: all 0.06s ease;
     flex-shrink: 0;
-    position: relative;
-  }
-  .dot-q {
-    background: #2a2a3a;
   }
   .dot-q.active {
-    background: var(--accent-4);
+    background: var(--accent-q);
     box-shadow: 0 0 18px rgba(74,124,255,0.4);
     transform: scale(1.15);
   }
-  .dot-q.accent {
-    background: #1e2a50;
-  }
+  .dot-q.accent { background: #1e2a50; }
   .dot-q.accent.active {
     background: #6a9aff;
     box-shadow: 0 0 26px rgba(74,124,255,0.5);
     transform: scale(1.3);
   }
 
-  .dot-e {
-    width: 16px; height: 16px;
+  .sub-label {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    opacity: 0.6;
+  }
+
+  /* Swing visual bars */
+  .swing-vis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 0;
+    height: 36px;
+  }
+  .swing-bar {
+    width: 14px;
+    border-radius: 3px;
     background: #2a2a3a;
-    margin: 8px 0;
+    transition: all 0.08s;
   }
-  .dot-e.active {
-    background: #5566aa;
-    transform: scale(1.2);
-  }
+  .swing-bar.long { height: 26px; }
+  .swing-bar.long.active { background: var(--accent-q); }
+  .swing-bar.short { height: 14px; }
+  .swing-bar.short.active { background: var(--accent-slider); }
 
   /* 3/4 track */
   .track-3 {
@@ -219,46 +332,15 @@
     flex-shrink: 0;
   }
   .dot-p3.active {
-    background: var(--accent-3);
+    background: var(--accent-p3);
     box-shadow: 0 0 18px rgba(255,107,74,0.4);
     transform: scale(1.15);
   }
-  .dot-p3.accent {
-    background: #3a1e1a;
-  }
+  .dot-p3.accent { background: #3a1e1a; }
   .dot-p3.accent.active {
     background: #ff8a6a;
     box-shadow: 0 0 26px rgba(255,107,74,0.5);
     transform: scale(1.3);
-  }
-
-  /* Swing visual indicator */
-  .swing-vis {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    padding: 8px 0 4px;
-    height: 32px;
-  }
-  .swing-bar {
-    width: 12px;
-    border-radius: 3px;
-    background: #2a2a3a;
-    transition: all 0.1s;
-  }
-  .swing-bar.long { height: 24px; background: #445; }
-  .swing-bar.long.active { background: var(--accent-4); }
-  .swing-bar.short { height: 14px; background: #334; }
-  .swing-bar.short.active { background: #5566aa; }
-
-  .sub-label {
-    text-align: center;
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-top: -4px;
-    margin-bottom: 4px;
-    opacity: 0.6;
   }
 
   /* Progress */
@@ -273,12 +355,12 @@
   .progress-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, var(--accent-4), var(--accent-3));
+    background: linear-gradient(90deg, var(--accent-q), var(--accent-p3));
     border-radius: 2px;
     transition: width 0.05s linear;
   }
 
-  /* Controls */
+  /* Play */
   .play-btn {
     width: 100%;
     padding: 16px;
@@ -291,7 +373,7 @@
     transition: all 0.15s;
     margin-bottom: 12px;
   }
-  .play-btn.start { background: var(--accent-4); color: #fff; }
+  .play-btn.start { background: var(--accent-q); color: #fff; }
   .play-btn.start:active { background: #3a6aee; }
   .play-btn.stop { background: var(--red); color: #fff; }
   .play-btn.stop:active { background: #c33; }
@@ -306,15 +388,12 @@
     flex-wrap: wrap;
   }
   .info .note { display: flex; align-items: center; gap: 5px; }
-  .info .swatch { width: 8px; height: 8px; border-radius: 2px; }
 
   @media (max-width: 400px) {
     .app { padding: 20px 16px 24px; }
     .bpm-display { font-size: 48px; }
-    .dot, .dot-p3 { width: 26px; height: 26px; }
-    .dot-e { width: 14px; height: 14px; margin: 6px 0; }
+    .dot-q, .dot-p3 { width: 26px; height: 26px; }
     .dots { gap: 4px; }
-    .mode-btn { font-size: 12px; padding: 8px 6px; }
   }
 </style>
 </head>
@@ -322,7 +401,7 @@
 <div class="app">
   <div class="header">
     <div class="logo"><span>◈</span> 节奏训练器</div>
-    <div class="logo" style="font-size:11px;letter-spacing:1px;">v0.2</div>
+    <div class="logo" style="font-size:11px;letter-spacing:1px;">v0.3</div>
   </div>
 
   <!-- BPM -->
@@ -334,45 +413,57 @@
     </div>
   </div>
 
-  <!-- Mode selector -->
-  <div class="mode-section">
-    <button class="mode-btn active-straight" data-mode="straight">
-      ♩ 直拍
-      <span class="sub">1:1</span>
-    </button>
-    <button class="mode-btn" data-mode="shuffle">
-      ♫ Shuffle
-      <span class="sub">三连音感</span>
-    </button>
-    <button class="mode-btn" data-mode="swing">
-      ♪ Swing
-      <span class="sub">摇摆 feel</span>
-    </button>
-    <button class="mode-btn" data-mode="poly" style="grid-column:1/-1;margin-top:-4px;">
+  <!-- Swing slider: 直拍 ←→ Shuffle -->
+  <div class="slider-section">
+    <div class="slider-header">
+      <span class="slider-label">偏移量</span>
+      <span class="slider-val" id="swingDisplay">50<span class="pct">%</span></span>
+    </div>
+    <div class="slider-track">
+      <div class="slider-bg">
+        <div class="slider-ticks">
+          <div class="slider-tick"></div>
+          <div class="slider-tick"></div>
+          <div class="slider-tick"></div>
+          <div class="slider-tick"></div>
+          <div class="slider-tick"></div>
+          <div class="slider-tick"></div>
+          <div class="slider-tick"></div>
+          <div class="slider-tick"></div>
+          <div class="slider-tick"></div>
+        </div>
+      </div>
+      <input type="range" class="swing-slider" id="swingSlider"
+             min="50" max="75" value="50" step="0.5">
+    </div>
+  </div>
+
+  <!-- 三套四 toggle -->
+  <div class="mode-row">
+    <button class="mode-btn" id="polyBtn">
       ⊞ 三套四
-      <span class="sub">4/4 + 3/4 复合节奏</span>
+      <span class="sub">4/4 + 3/4</span>
     </button>
   </div>
 
   <!-- Beat visualization -->
   <div class="beat-area" id="beatArea">
-    <!-- Quarter note indicator -->
     <div class="sub-label" id="beatLabel">四分音符 · 4 beats</div>
-    
+
     <!-- 4/4 track -->
     <div class="track">
       <div class="track-label">♩</div>
       <div class="dots" id="trackQ">
-        <div class="dot dot-q accent" data-idx="0"></div>
-        <div class="dot dot-q" data-idx="1"></div>
-        <div class="dot dot-q" data-idx="2"></div>
-        <div class="dot dot-q" data-idx="3"></div>
+        <div class="dot-q accent" data-idx="0"></div>
+        <div class="dot-q" data-idx="1"></div>
+        <div class="dot-q" data-idx="2"></div>
+        <div class="dot-q" data-idx="3"></div>
       </div>
     </div>
 
-    <!-- Swing/Shuffle subdivision track -->
-    <div id="subdivArea" style="display:none;">
-      <div class="track" style="margin-top:6px;">
+    <!-- Swing subdivision bars -->
+    <div id="subdivArea">
+      <div class="track" style="margin-top:4px;">
         <div class="track-label" style="font-size:10px;">♪</div>
         <div class="swing-vis" id="swingVis">
           <div class="swing-bar long" data-idx="0"></div>
@@ -385,12 +476,11 @@
           <div class="swing-bar short" data-idx="7"></div>
         </div>
       </div>
-      <div class="sub-label" id="swingLabel">三连音 2:1 · 66.7%</div>
     </div>
 
-    <!-- 3/4 polyrhythm track -->
+    <!-- 3/4 track -->
     <div class="track-3" id="polyTrack" style="display:none;">
-      <div class="track-label" style="color:var(--accent-3);">3/4</div>
+      <div class="track-label" style="color:var(--accent-p3);">3/4</div>
       <div class="dots">
         <div class="dot-p3 accent" data-idx="0"></div>
         <div class="dot-p3" data-idx="1"></div>
@@ -398,7 +488,6 @@
       </div>
     </div>
 
-    <!-- Progress -->
     <div class="progress-bar">
       <div class="progress-fill" id="progressFill"></div>
     </div>
@@ -407,13 +496,10 @@
   <!-- Play -->
   <button class="play-btn start" id="playBtn">▶ 开始</button>
 
-  <!-- Info -->
   <div class="info">
-    <span class="note"><span class="swatch" style="background:var(--accent-4)"></span> 强拍</span>
-    <span class="note"><span class="swatch" style="background:#5566aa"></span> 弱拍</span>
-    <span class="note" id="infoAux" style="display:none;">
-      <span class="swatch" style="background:var(--accent-3)"></span> 3/4
-    </span>
+    <span class="note" style="color:var(--accent-q)">♩ 强拍</span>
+    <span class="note" style="color:var(--accent-slider)">♪ 弱拍</span>
+    <span class="note" id="infoPoly" style="display:none;color:var(--accent-p3);">⊞ 3/4</span>
   </div>
 </div>
 
@@ -421,18 +507,14 @@
 (function(){
   'use strict';
 
-  // --- State ---
   const state = {
     bpm: 120,
     playing: false,
-    mode: 'straight',  // straight | shuffle | swing | poly
-    currentQ: 0,       // current quarter note (0-3)
-    currentE: 0,       // current 8th note (0-7)
-    currentP3: 0,      // current 3/4 beat (0-2)
-    barTick: 0,        // tick position in bar
+    swingRatio: 50,   // 50-75%, controls 8th note offset
+    polyOn: false,    // 3:4 polyrhythm toggle
+    barTick: 0,
   };
 
-  // --- Audio ---
   let audioCtx = null;
   let nextTickTime = 0;
   let timerId = null;
@@ -441,9 +523,7 @@
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
   }
 
   // --- Sounds ---
@@ -459,26 +539,21 @@
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start(time);
-    osc.stop(time + (accent ? 0.12 : 0.08));
+    osc.stop(time + 0.12);
   }
 
-  function playClick(time, freq, vol) {
+  function playSub(time, isLong) {
     if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, time);
-    gain.gain.setValueAtTime(vol, time);
+    osc.frequency.setValueAtTime(isLong ? 440 : 330, time);
+    gain.gain.setValueAtTime(isLong ? 0.10 : 0.07, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start(time);
     osc.stop(time + 0.03);
-  }
-
-  function playSub(time, idx) {
-    // idx=0 (long) = higher pitch, idx=1 (short) = lower pitch
-    playClick(time, idx === 0 ? 440 : 330, 0.08);
   }
 
   function playPoly3(time, accent) {
@@ -496,148 +571,67 @@
   }
 
   // --- Scheduling ---
-  function getBeatDuration() {
-    return 60 / state.bpm;
-  }
+  function getBeatDur() { return 60 / state.bpm; }
 
-  // Schedule one bar's worth of events
-  function scheduleBar(startTime) {
-    const beatDur = getBeatDuration();
-
-    if (state.mode === 'straight') {
-      for (let i = 0; i < 4; i++) {
-        const t = startTime + i * beatDur;
-        playKick(t, i === 0);
-      }
-    }
-    else if (state.mode === 'shuffle') {
-      // Shuffle: triple feel, 2:1 ratio per beat
-      const ratio = 2/3; // first note takes 2/3 of the beat
-      for (let i = 0; i < 4; i++) {
-        const beatStart = startTime + i * beatDur;
-        playKick(beatStart, i === 0);
-        playSub(beatStart + beatDur * ratio, 0); // "long" part
-        // The "short" part would be at beatStart + beatDur (next beat's kick)
-      }
-    }
-    else if (state.mode === 'swing') {
-      // Swing: less extreme, ~62% ratio
-      const ratio = 0.62;
-      for (let i = 0; i < 4; i++) {
-        const beatStart = startTime + i * beatDur;
-        playKick(beatStart, i === 0);
-        playSub(beatStart + beatDur * ratio, 0);
-      }
-    }
-    else if (state.mode === 'poly') {
-      // 4/4 + 3/4 polyrhythm
-      // 3/4 divides 4 beats into 3 equal parts
-      // Each 3/4 beat spans 4/3 of a quarter note
-      const polyBeatDur = beatDur * (4/3);
-      for (let i = 0; i < 4; i++) {
-        playKick(startTime + i * beatDur, i === 0);
-      }
-      for (let i = 0; i < 3; i++) {
-        playPoly3(startTime + i * polyBeatDur, i === 0);
-      }
-    }
-  }
-
-  // --- Visual update scheduling ---
-  // We use a higher resolution for smooth animation
-  // In straight mode: 4 ticks per bar (one per quarter note)
-  // In shuffle/swing: 8 ticks per bar (one per 8th note feel)
-  // In poly mode: 12 ticks per bar (LCM)
-
-  function getTicksPerBar() {
-    if (state.mode === 'straight') return 4;
-    if (state.mode === 'shuffle' || state.mode === 'swing') return 8;
-    if (state.mode === 'poly') return 12;
-    return 4;
-  }
-
-  function getTickDuration() {
-    return getBeatDuration() / (getTicksPerBar() / 4);
-    // ticks per quarter = ticksPerBar / 4
-    // tick duration = beatDur / ticksPerQ
-  }
-
-  function getVisualState(tick) {
-    const tpbar = getTicksPerBar();
-    const t = tick % tpbar;
-
-    if (state.mode === 'straight') {
-      return { q: t, sub: -1 };
-    }
-    if (state.mode === 'shuffle' || state.mode === 'swing') {
-      return { q: Math.floor(t / 2), sub: t % 2 };
-    }
-    if (state.mode === 'poly') {
-      return { q: Math.floor(t / 3), sub: -1, p3: Math.floor(t / 4) };
-    }
-    return { q: 0, sub: -1 };
-  }
+  function getRatio() { return state.swingRatio / 100; }
 
   function scheduleLoop() {
     if (!state.playing) return;
     try {
       const now = audioCtx.currentTime;
-      if (nextTickTime < now) {
-        nextTickTime = now;
+      if (nextTickTime < now) nextTickTime = now;
+
+      const beatDur = getBeatDur();
+      const ratio = getRatio();
+      const swingTickDur = beatDur * ratio;      // duration of "long" 8th
+      const swingTickDur2 = beatDur * (1 - ratio); // duration of "short" 8th
+      // In swing/shuffle feel, we use 8 ticks per bar (2 per beat)
+      const tickDurs = [];
+      for (let b = 0; b < 4; b++) {
+        tickDurs.push(swingTickDur);   // long 8th
+        tickDurs.push(swingTickDur2);  // short 8th
       }
 
-      const beatDur = getBeatDuration();
-      const tickDur = getTickDuration();
-      const tpbar = getTicksPerBar();
-
-      // Schedule audio ahead by 100ms
       while (nextTickTime < now + 0.15) {
-        const tickInBar = state.barTick % tpbar;
-        const beatStart = nextTickTime - (tickInBar * tickDur);
-        // firstBeatTime = nextTickTime - tickInBar * tickDur
-        // Actually this isn't quite right, let me recalculate
-        // nextTickTime is the absolute time of this tick
-        // tickInBar is which tick within the bar
+        const tick = state.barTick % 8;
+        const beatIdx = Math.floor(tick / 2);
+        const subIdx = tick % 2;
 
-        if (tickInBar === 0) {
-          // First tick of the bar - schedule all events for the bar
-          if (state.mode === 'straight') {
-            for (let i = 0; i < 4; i++) {
-              playKick(nextTickTime + i * beatDur, i === 0);
+        // Schedule a full bar when reaching tick 0
+        if (tick === 0) {
+          // Play 4 quarter-note kicks
+          let t = nextTickTime;
+          for (let b = 0; b < 4; b++) {
+            playKick(t, b === 0);
+            if (b < 3) {
+              // Duration to next beat: sum of two sub-ticks
+              const toNext = beatDur;
+              t += toNext;
             }
           }
-          else if (state.mode === 'shuffle') {
-            const ratio = 2/3;
-            for (let i = 0; i < 4; i++) {
-              const bt = nextTickTime + i * beatDur;
-              playKick(bt, i === 0);
-              playSub(bt + beatDur * ratio, 0);
-            }
+
+          // Play subdivision clicks
+          let subT = nextTickTime;
+          for (let i = 0; i < 8; i++) {
+            const isLong = i % 2 === 0;
+            playSub(subT, isLong);
+            subT += (i % 2 === 0) ? swingTickDur : swingTickDur2;
           }
-          else if (state.mode === 'swing') {
-            const ratio = 0.62;
-            for (let i = 0; i < 4; i++) {
-              const bt = nextTickTime + i * beatDur;
-              playKick(bt, i === 0);
-              playSub(bt + beatDur * ratio, 0);
-            }
-          }
-          else if (state.mode === 'poly') {
+
+          // 三套四: overlay 3/4
+          if (state.polyOn) {
             const p3dur = beatDur * 4/3;
-            for (let i = 0; i < 4; i++) {
-              playKick(nextTickTime + i * beatDur, i === 0);
-            }
             for (let i = 0; i < 3; i++) {
               playPoly3(nextTickTime + i * p3dur, i === 0);
             }
           }
         }
 
-        nextTickTime += tickDur;
+        // Advance by this tick's duration
+        nextTickTime += tickDurs[tick];
         state.barTick++;
       }
 
-      // Update visuals
       updateVisuals();
 
     } catch(e) {
@@ -648,59 +642,39 @@
 
   // --- Visuals ---
   function updateVisuals() {
-    const tpbar = getTicksPerBar();
-    const tick = state.barTick % tpbar;
+    const tick = state.barTick % 8;
+    const qIdx = Math.floor(tick / 2);
+    const subIdx = tick % 2;
 
-    let qIdx, subIdx, p3Idx;
-    if (state.mode === 'straight') {
-      qIdx = tick % 4;
-      subIdx = -1;
-    } else if (state.mode === 'shuffle' || state.mode === 'swing') {
-      qIdx = Math.floor(tick / 2);
-      subIdx = tick % 2;
-    } else { // poly
-      qIdx = Math.floor(tick / 3);
-      subIdx = -1;
-      p3Idx = Math.floor(tick / 4);
-    }
-
-    state.currentQ = qIdx;
-    state.currentE = subIdx;
-    state.currentP3 = p3Idx;
-
-    // Update quarter dots
+    // Quarter note dots
     document.querySelectorAll('.dot-q').forEach((d, i) => {
       d.classList.toggle('active', i === qIdx);
     });
 
-    // Update swing bars
-    if (subIdx >= 0) {
-      document.querySelectorAll('.swing-bar').forEach((bar, i) => {
-        bar.classList.toggle('active', i === tick);
-      });
-    }
+    // Swing bars
+    document.querySelectorAll('.swing-bar').forEach((bar, i) => {
+      bar.classList.toggle('active', i === tick);
+    });
 
-    // Update poly dots
-    if (state.mode === 'poly') {
+    // Poly dots
+    if (state.polyOn) {
+      const p3Idx = Math.floor(state.barTick / 4) % 3;
       document.querySelectorAll('.dot-p3').forEach((d, i) => {
         d.classList.toggle('active', i === p3Idx);
       });
     }
 
     // Progress
-    const prog = (tick / tpbar) * 100;
+    const prog = (tick / 8) * 100;
     document.getElementById('progressFill').style.width = prog + '%';
   }
 
-  // --- Controls ---
+  // --- UI ---
   function start() {
     initAudio();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     state.playing = true;
     state.barTick = 0;
-    state.currentQ = 0;
-    state.currentE = -1;
-    state.currentP3 = -1;
     nextTickTime = audioCtx.currentTime + 0.05;
     updateVisuals();
     document.getElementById('playBtn').textContent = '■ 停止';
@@ -712,10 +686,6 @@
     state.playing = false;
     if (timerId) { cancelAnimationFrame(timerId); timerId = null; }
     state.barTick = 0;
-    state.currentQ = 0;
-    state.currentE = -1;
-    state.currentP3 = -1;
-    // Reset all visuals
     document.querySelectorAll('.dot-q').forEach(d => d.classList.remove('active'));
     document.querySelectorAll('.swing-bar').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.dot-p3').forEach(d => d.classList.remove('active'));
@@ -733,61 +703,40 @@
     document.getElementById('bpmDisplay').innerHTML = state.bpm + ' <span class="unit">BPM</span>';
   }
 
-  function setMode(mode) {
+  // Update visual label to show what the current ratio sounds like
+  function updateSwingLabel() {
+    const r = state.swingRatio;
+    const display = document.getElementById('swingDisplay');
+    display.innerHTML = r + '<span class="pct">%</span>';
+
+    const label = document.getElementById('beatLabel');
+    if (r <= 52) label.textContent = '直拍 · 均匀 8 分音符';
+    else if (r < 58) label.textContent = '轻 Swing · ' + r + '%';
+    else if (r < 64) label.textContent = 'Swing · ' + r + '%';
+    else if (r < 68) label.textContent = '重 Swing · ' + r + '%';
+    else label.textContent = 'Shuffle · ' + r + '%';
+  }
+
+  function togglePoly() {
     if (state.playing) stop();
-    state.mode = mode;
-
-    // Update button states
-    document.querySelectorAll('.mode-btn').forEach(b => {
-      b.className = 'mode-btn';
-    });
-    const btn = document.querySelector(`[data-mode="${mode}"]`);
-    if (btn) {
-      if (mode === 'straight') btn.classList.add('active-straight');
-      else if (mode === 'shuffle') btn.classList.add('active-shuffle');
-      else if (mode === 'swing') btn.classList.add('active-swing');
-      else if (mode === 'poly') btn.classList.add('active-poly');
-    }
-
-    // Show/hide tracks
-    const subArea = document.getElementById('subdivArea');
-    const polyTrack = document.getElementById('polyTrack');
-    const infoAux = document.getElementById('infoAux');
-    const beatLabel = document.getElementById('beatLabel');
-    const swingLabel = document.getElementById('swingLabel');
-
-    subArea.style.display = (mode === 'shuffle' || mode === 'swing') ? 'block' : 'none';
-    polyTrack.style.display = mode === 'poly' ? 'flex' : 'none';
-    infoAux.style.display = mode === 'poly' ? 'inline' : 'none';
-
-    if (mode === 'straight') {
-      beatLabel.textContent = '四分音符 · 4 beats';
-    } else if (mode === 'shuffle') {
-      beatLabel.textContent = 'Shuffle · 三连音 2:1';
-      swingLabel.textContent = '3连音 2:1 · 66.7%';
-    } else if (mode === 'swing') {
-      beatLabel.textContent = 'Swing · 摇摆 62%';
-      swingLabel.textContent = '摇摆 62:38 · 三连音偏移';
-    } else if (mode === 'poly') {
-      beatLabel.textContent = '三套四 · 4/4 + 3/4';
-    }
-
-    state.barTick = 0;
-    updateVisuals();
+    state.polyOn = !state.polyOn;
+    document.getElementById('polyBtn').classList.toggle('active', state.polyOn);
+    document.getElementById('polyTrack').style.display = state.polyOn ? 'flex' : 'none';
+    document.getElementById('infoPoly').style.display = state.polyOn ? 'inline' : 'none';
   }
 
   // --- Init ---
   function init() {
-    // BPM
     document.getElementById('bpmUp').addEventListener('click', () => setBpm(state.bpm + 5));
     document.getElementById('bpmDown').addEventListener('click', () => setBpm(state.bpm - 5));
-
-    // Play
     document.getElementById('playBtn').addEventListener('click', togglePlay);
+    document.getElementById('polyBtn').addEventListener('click', togglePoly);
 
-    // Mode buttons
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.addEventListener('click', () => setMode(btn.dataset.mode));
+    // Swing slider
+    const slider = document.getElementById('swingSlider');
+    slider.addEventListener('input', () => {
+      state.swingRatio = parseFloat(slider.value);
+      updateSwingLabel();
     });
 
     // Keyboard
@@ -797,14 +746,13 @@
       if (e.key === 'ArrowDown') setBpm(state.bpm - 5);
     });
 
-    // Init audio context on first interaction
+    // Init audio on first interaction
     document.addEventListener('click', () => {
       if (!audioCtx) initAudio();
     }, { once: true });
 
-    // Default state
-    setBpm(120);
-    setMode('straight');
+    setBpm(80);
+    updateSwingLabel();
   }
 
   init();
