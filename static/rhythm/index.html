@@ -266,7 +266,7 @@ function drawViz(){
   // Draw track B (outer) circle and dots
   ctx.beginPath();
   ctx.arc(cx,cy,rB,0,2*Math.PI);
-  ctx.strokeStyle='rgba(106,176,200,.15)';
+  ctx.strokeStyle=S.playing?'rgba(106,176,200,.25)':'rgba(106,176,200,.35)';
   ctx.lineWidth=1.5;
   ctx.stroke();
   
@@ -274,12 +274,12 @@ function drawViz(){
     const angle=-Math.PI/2+i*(2*Math.PI/bb);
     const x=cx+rB*Math.cos(angle);
     const y=cy+rB*Math.sin(angle);
-    ctx.beginPath();ctx.arc(x,y,i===bIdx?4:3,0,2*Math.PI);
-    ctx.fillStyle=i===bIdx?'rgba(106,176,200,.4)':'rgba(106,176,200,.15)';
+    ctx.beginPath();ctx.arc(x,y,i===bIdx?5:4,0,2*Math.PI);
+    ctx.fillStyle=i===bIdx?'rgba(106,176,200,.6)':'rgba(106,176,200,.35)';
     ctx.fill();
     if(i===0){
-      ctx.beginPath();ctx.arc(x,y,5,0,2*Math.PI);
-      ctx.fillStyle='rgba(106,176,200,.6)';ctx.fill();
+      ctx.beginPath();ctx.arc(x,y,7,0,2*Math.PI);
+      ctx.fillStyle='rgba(106,176,200,.7)';ctx.fill();
     }
   }
   
@@ -301,7 +301,7 @@ function drawViz(){
   // Draw track A (inner) circle and dots
   ctx.beginPath();
   ctx.arc(cx,cy,rA,0,2*Math.PI);
-  ctx.strokeStyle='rgba(255,138,106,.15)';
+  ctx.strokeStyle=S.playing?'rgba(255,138,106,.25)':'rgba(255,138,106,.35)';
   ctx.lineWidth=1.5;
   ctx.stroke();
   
@@ -309,12 +309,12 @@ function drawViz(){
     const angle=-Math.PI/2+i*(2*Math.PI/ba);
     const x=cx+rA*Math.cos(angle);
     const y=cy+rA*Math.sin(angle);
-    ctx.beginPath();ctx.arc(x,y,i===aIdx?4:3,0,2*Math.PI);
-    ctx.fillStyle=i===aIdx?'rgba(255,138,106,.4)':'rgba(255,138,106,.15)';
+    ctx.beginPath();ctx.arc(x,y,i===aIdx?5:4,0,2*Math.PI);
+    ctx.fillStyle=i===aIdx?'rgba(255,138,106,.6)':'rgba(255,138,106,.35)';
     ctx.fill();
     if(i===0){
-      ctx.beginPath();ctx.arc(x,y,6,0,2*Math.PI);
-      ctx.fillStyle='rgba(255,138,106,.6)';ctx.fill();
+      ctx.beginPath();ctx.arc(x,y,7,0,2*Math.PI);
+      ctx.fillStyle='rgba(255,138,106,.7)';ctx.fill();
     }
   }
   
@@ -337,9 +337,14 @@ function drawViz(){
   ctx.fillText(S.beatsA+':'+S.beatsB,cx,cy+4);
   
   if(!S.playing){
-    ctx.fillStyle='rgba(255,138,106,.3)';
-    ctx.font='500 14px -apple-system,sans-serif';
-    ctx.fillText('▶ 点击开始',cx,cy+40);
+    ctx.fillStyle='rgba(255,138,106,.5)';
+    ctx.font='600 16px -apple-system,sans-serif';
+    ctx.fillText('点这里开始',cx,cy+44);
+    // pulse ring
+    const pulse=.3+.2*Math.sin(Date.now()/800);
+    ctx.beginPath();ctx.arc(cx,cy,Math.min(W,H)*.12,0,2*Math.PI);
+    ctx.strokeStyle='rgba(255,138,106,'+pulse+')';
+    ctx.lineWidth=2;ctx.stroke();
   }
   
   requestAnimationFrame(drawViz);
