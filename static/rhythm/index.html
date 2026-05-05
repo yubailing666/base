@@ -295,7 +295,7 @@ function stop(){
 }
 function toggle(){S.play?stop():start()}
 
-function setBpm(v){S.bpm=Math.max(30,Math.min(300,v));document.getElementById('bpmN').textContent=S.bpm;updInfo()
+function setBpm(v){S.bpm=Math.max(30,Math.min(300,v));document.getElementById('bpmN').textContent=S.bpm;updInfo()}
 function setBeats(tr,d){
   if(S.play)stop();
   S[tr==='a'?'ba':'bb']=Math.max(2,Math.min(16,S[tr==='a'?'ba':'bb']+d));
