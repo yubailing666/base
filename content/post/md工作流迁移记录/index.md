@@ -1,3 +1,13 @@
+---
+title: "把工作流搬到 md 之后，我回不去了"
+description: "从 docx 到 md，从 Word 到 Obsidian，从自己做 PPT 到一键生成——记录一次工作流的减法"
+date: 2026-05-12
+draft: false
+math: false
+tags: [openclaw, 工具, md, 工作流]
+categories: [工具]
+---
+
 把工作流搬到 md 之后，我回不去了
 
 也不是什么了不起的发现。就是用了几个月之后发现，自己再也不想碰 docx 了。
@@ -26,7 +36,7 @@
 
 OpenClaw 有一个 memory 系统。本质上就是一些 md 文件，放在 ~/.openclaw/workspace/memory/ 下面。
 
-规则只有两条：
+规则只有两条。
 
 一条是关于你自己的。比如我会在 memory 里写清楚我的体质（火旺，容易想太多），我的学习习惯（从底层往上推），我讨厌什么（AI 说废话、并列排比结尾）。
 
